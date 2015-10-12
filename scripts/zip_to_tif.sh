@@ -1,13 +1,14 @@
 #!/bin/bash
-#init stuff
 set -o errexit
 set -o nounset
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
-ZIP_FILE=$1
+ZIP_FILE=$(readlink -f $1)
 ZIP_DIR=$(dirname $ZIP_FILE)
-OUT_DIR=${$2-$ZIP_DIR}
-
+OUT_DIR=${2-$ZIP_DIR}
+OUT_DIR=$(readlink -f $OUT_DIR)
+set -x
+echo $(pwd)
 #create working dir
 TEMP_DIR=$(mktemp -d)
 pushd $TEMP_DIR
@@ -15,14 +16,13 @@ cp $ZIP_FILE ./
 #unzip
 unzip *.zip
 rm *.zip
-rm !(*.img)
 #to tif and correct projection
-ls *.tif | parallel 'gdalwarp -co "COMPRESS=LZW" -t_srs epsg:3857 -of GTiff {.}.img {.}.tif'
+ls *.img | parallel 'gdalwarp -co "COMPRESS=LZW" -t_srs epsg:3857 -of GTiff {.}.img {.}.tif'
 #copy output
-mv *.tif OUT_DIR
+mv *.tif $OUT_DIR
 #cleanup
 popd
-rm $TEMP_DIR
+rm -r $TEMP_DIR
 
 
 #ls *.img | parallel -j 2 'gdal_translate -co "COMPRESS=LZW" -of GTiff {.}.img {.}.tif'
