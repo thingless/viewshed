@@ -17,7 +17,7 @@ cp $ZIP_FILE ./
 unzip *.zip
 rm *.zip
 #to tif and correct projection
-ls *.img | parallel 'gdalwarp -co "COMPRESS=LZW" -t_srs epsg:3857 -of GTiff {.}.img {.}.tif'
+ls *.img | parallel 'gdalwarp -co "PREDICTOR=2" -co "TILED=YES" -co "COMPRESS=DEFLATE" -t_srs epsg:3857 -of GTiff {.}.img {.}.tif'
 #copy output
 mv *.tif $OUT_DIR
 #cleanup
