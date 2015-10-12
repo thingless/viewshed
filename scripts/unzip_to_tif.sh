@@ -29,3 +29,6 @@ rm -r $TEMP_DIR
 #gdalwarp -t_srs epsg:3857 ./imgn38w123_13.tif ./imgn38w123_13_57.tif
 #gdaldem color-relief ./imgn38w123_13_57.tif color.txt relief.tif
 #gdal2tiles.py -z 10 relief.tif tiles
+
+
+#gdalbuildvrt out.vrt *.tif
