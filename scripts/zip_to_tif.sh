@@ -5,7 +5,8 @@ set -o nounset
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
 ZIP_FILE=$1
-OUT_DIR=${$2-$(dirname "$ZIP_FILE")}
+ZIP_DIR=$(dirname $ZIP_FILE)
+OUT_DIR=${$2-$ZIP_DIR}
 
 #create working dir
 TEMP_DIR=$(mktemp -d)
