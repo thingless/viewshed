@@ -14,10 +14,10 @@ TEMP_DIR=$(mktemp -d)
 pushd $TEMP_DIR
 cp $ZIP_FILE ./
 #unzip
-unzip *.zip
+unzip -j *.zip
 rm *.zip
 #to tif and correct projection
-ls *.img | parallel 'gdalwarp -co "PREDICTOR=2" -co "TILED=YES" -co "COMPRESS=DEFLATE" -t_srs epsg:3857 -of GTiff {.}.img {.}.tif'
+ls *.img *.hgt | parallel 'gdalwarp -co "PREDICTOR=2" -co "TILED=YES" -co "COMPRESS=DEFLATE" -t_srs epsg:3857 -of GTiff {} {.}.tif'
 #copy output
 mv *.tif $OUT_DIR
 #cleanup
