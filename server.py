@@ -88,7 +88,7 @@ class ElevationHandler(ApiHandler):
     self.write_response({"value":im})
 
 application = tornado.web.Application([
-  (r"/(\d+\.?\d*)/(\d+\.?\d*)", ElevationHandler),
+  (r"elevation/(\d+\.?\d*)/(\d+\.?\d*)", ElevationHandler),
 ])
 
 if __name__ == "__main__":
