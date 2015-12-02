@@ -2,10 +2,10 @@ import tornado.ioloop
 import tornado.web
 from tornado.httpclient import AsyncHTTPClient
 from tornado import gen
-from PIL import Image
 import dict2xml
 import math
 import tornado
+import gdal
 
 TILE_HOST = "http://127.0.0.1:8080"
 
@@ -73,6 +73,19 @@ class CoordSystem(object):
         lng *= 180.0 / math.pi
         return lat, lng
 
+def load_float32_image(buffer):
+    try:
+        gdal.FileFromMemBuffer('/vsimem/temp', buffer)
+        ds = gdal.Open('/vsimem/temp')
+        channel = ds.GetRasterBand(1).ReadAsArray()
+        ds = None #cleanup
+        gdal.Unlink('/vsimem/temp') #cleanup
+        return channel
+    except Exception, e:
+        ds = None #cleanup
+        gdal.Unlink('/vsimem/temp') #cleanup
+        raise e
+
 class ElevationHandler(ApiHandler):
     @gen.coroutine
     def get(self, lat, lng):
@@ -85,11 +98,10 @@ class ElevationHandler(ApiHandler):
         response = yield http_client.fetch(TILE_HOST+"/{z}/{x}/{y}.tiff".format(z=12, x=tile[0], y=tile[1]))
         if response.code != 200:
             raise tornado.web.HTTPError(response.code)
-        im = Image.open(response.buffer)
+        im = load_float32_image(response.body)
         pixel = [int(round(i))%255 for i in CoordSystem.latlng_to_pixel(latlng)]
-        value = im.getpixel((pixel[0], pixel[1]))
-        im = None
-        self.write_response({"value":im})
+        value = im[pixel[1], pixel[0]] #numpy is row,col
+        self.write_response({"value":value})
 
 application = tornado.web.Application([
     (r"/elevation/(-?\d+\.?\d*)/(-?\d+\.?\d*)", ElevationHandler),
