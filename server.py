@@ -63,7 +63,7 @@ class CoordSystem(object):
     @classmethod
     def latlng_to_tile(cls, latlng, zoom=12):
         r = cls.latlng_to_pixel(latlng, zoom)
-        return (int(r[0]//256), int(r[1]//256))
+        return (int(r[0]//256), 2**zoom - int(r[1]//256) - 1)
     @classmethod
     def pixel_to_latlng(cls, point, zoom=12):
         x, y = point
@@ -95,13 +95,19 @@ class ElevationHandler(ApiHandler):
             raise tornado.web.HTTPError(400)
         tile = CoordSystem.latlng_to_tile(latlng)
         http_client = AsyncHTTPClient()
-        response = yield http_client.fetch(TILE_HOST+"/{z}/{x}/{y}.tiff".format(z=12, x=tile[0], y=tile[1]))
+        tile_url = TILE_HOST+"/{z}/{x}/{y}.tiff".format(z=12, x=tile[0], y=tile[1])
+        response = yield http_client.fetch(tile_url)
         if response.code != 200:
             raise tornado.web.HTTPError(response.code)
         im = load_float32_image(response.body)
-        pixel = [int(round(i))%255 for i in CoordSystem.latlng_to_pixel(latlng)]
+        pixel = [int(round(i))%256 for i in CoordSystem.latlng_to_pixel(latlng)]
         value = im[pixel[1], pixel[0]] #numpy is row,col
-        self.write_response({"value":value})
+        self.write_response({
+            "elevation": value,
+            "pixel_coords": {"x": pixel[0], "y": pixel[1]},
+            "tile": {"x": tile[0], "y": tile[1], "url": tile_url},
+            "geo_coords": {"latitude": lat, "longitude": lng},
+        })
 
 application = tornado.web.Application([
     (r"/elevation/(-?\d+\.?\d*)/(-?\d+\.?\d*)", ElevationHandler),

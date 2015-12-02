@@ -32,3 +32,37 @@ plt.scatter(range(len(heightmap)), fhm)
 plt.scatter([0], [tower_height], color='red')
 plt.plot(heightmap)
 plt.show()
+
+
+
+ZOOM = 12
+
+def sample(center_xy, angle, length, get_tile_fn):
+    """Get a list of values along a line across many tiles.
+
+    Args:
+      center_xy: starting point for the line in pixels like (x,y)
+      angle: angle in degrees, unit circle style (starting at 3 o'clock, going CCW)
+      length: length of the line to cast in pixels
+      get_tile_fn: callback(zoom, x, y) -> returns tile x,y at zoom, as 2d numpy array
+
+    Returns:
+      list of `length` values as floats
+    """
+    dx = 1  # one pixel steps, whatever
+
+    out = []
+    x, y = center_xy
+
+    slope = math.tan(math.radians(angle))
+
+    end = (
+        x + math.cos(math.radians(angle)) * length,
+        y + math.sin(math.radians(angle)) * length,
+    )
+
+    while len(out) < length:
+        x += dx
+        y += dx * slope
+
+    tile = get_tile_fn(ZOOM, 

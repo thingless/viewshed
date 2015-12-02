@@ -22,13 +22,11 @@ NODATA=$(gdalinfo $INPUT_FILE | grep -i nodata | awk "NR==$1" | awk -F'=' '{prin
 #extract band
 gdal_translate -b $1 input_file band
 #color the band
-echo "100% 255 255 255" > color_relief.txt
-echo "75% 235 220 175" >> color_relief.txt
-echo "50% 190 185 135" >> color_relief.txt
-echo "25% 240 250 150" >> color_relief.txt
-echo "0% 50 180 50" >> color_relief.txt
-echo "$NODATA 255 0 0" >> color_relief.txt
+echo "100 255 255 255" > color_relief.txt
+echo "1 128 128 128" >> color_relief.txt
+echo "0 0 0 0" >> color_relief.txt
+#echo "$NODATA 255 0 0" >> color_relief.txt
 gdaldem color-relief band color_relief.txt band_color
 #convert and return
 gdal_translate -of PNG band_color $OUTPUT_FILE
-open $OUTPUT_FILE
+open $OUTPUT_FILE || feh $OUTPUT_FILE
