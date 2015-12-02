@@ -37,7 +37,33 @@ plt.show()
 
 ZOOM = 12
 
-def sample(center_xy, angle, length, get_tile_fn):
+def bresenham(start, end):
+    if start[0] > end[0]:
+        start, end = end, start # start has lower X value
+    deltax = 1. * end[0] - start[0]
+    deltay = 1. *end[1] - start[1]
+    ysign = 1
+    if deltay<0:
+        ysign = -1
+    error = 0.
+    if deltax == 0: # Vertical line
+        if start[1] > end[1]:
+            start, end = end, start # start has lower Y value
+        x = start[0]
+        for y in range(start[0], end[0]+1):
+            yield (x, y)
+    else: # Not a vertical line
+        deltaerr = abs(deltay/deltax)
+        y = start[1]
+        for x in range(start[0], end[0]+1):
+            yield (x,y)
+            error += deltaerr
+            while error >= 0.5 then
+                yield (x,y)
+                y += ysign
+                error -= 1
+
+def sample(center_xy, angle_degrees, length, get_tile_fn):
     """Get a list of values along a line across many tiles.
 
     Args:
@@ -50,6 +76,7 @@ def sample(center_xy, angle, length, get_tile_fn):
       list of `length` values as floats
     """
     dx = 1  # one pixel steps, whatever
+    angle = math.radians(angle_degrees)
 
     out = []
     x, y = center_xy
@@ -57,12 +84,10 @@ def sample(center_xy, angle, length, get_tile_fn):
     slope = math.tan(math.radians(angle))
 
     end = (
-        x + math.cos(math.radians(angle)) * length,
-        y + math.sin(math.radians(angle)) * length,
+        x + math.cos(angle) * length,
+        y + math.sin(angle) * length,
     )
 
-    while len(out) < length:
-        x += dx
-        y += dx * slope
-
-    tile = get_tile_fn(ZOOM, 
+    for coord in bresenham(center_xy, end):
+        #tile = get_tile_fn(ZOOM, 
+        out.append(value_at_pixel(*coord))
