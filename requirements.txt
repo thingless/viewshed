@@ -1,2 +1,7 @@
+backports.ssl-match-hostname==3.4.0.2
+certifi==2015.11.20.1
+dict2xml==1.4
 Pillow==2.6.1
+six==1.10.0
 tornado==4.2.1
+wheel==0.24.0
