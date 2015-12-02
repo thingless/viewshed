@@ -14,42 +14,42 @@ class ApiHandler(tornado.web.RequestHandler):
     def get_format(self):
         format = self.get_argument('format', None)
         if not format:
-                accept = self.request.headers.get('Accept')
-                if accept:
-                        if 'javascript' in accept:
-                                format = 'jsonp'
-                        elif 'json' in accept:
-                                format = 'json'
-                        elif 'xml' in accept:
-                                format = 'xml'
+            accept = self.request.headers.get('Accept')
+            if accept:
+                if 'javascript' in accept:
+                    format = 'jsonp'
+                elif 'json' in accept:
+                    format = 'json'
+                elif 'xml' in accept:
+                    format = 'xml'
         return format or 'json'
 
     def write_response(self, obj, nofail=False):
         format = self.get_format()
         if format == 'json':
-                self.set_header("Content-Type", "application/javascript")
-                self.write(json.dumps(obj))
+            self.set_header("Content-Type", "application/javascript")
+            self.write(json.dumps(obj))
         elif format == 'jsonp':
-                self.set_header("Content-Type", "application/javascript")
-                callback = self.get_argument('callback', 'callback')
-                self.write('%s(%s);'%(callback, json.dumps(obj)))
+            self.set_header("Content-Type", "application/javascript")
+            callback = self.get_argument('callback', 'callback')
+            self.write('%s(%s);'%(callback, json.dumps(obj)))
         elif format == 'xml':
-                self.set_header("Content-Type", "application/xml")
-                self.write('<response>%s</response>'%dict2xml.dict2xml(obj))
+            self.set_header("Content-Type", "application/xml")
+            self.write('<response>%s</response>'%dict2xml.dict2xml(obj))
         elif nofail:
-                self.write(json.dumps(obj))
+            self.write(json.dumps(obj))
         else:
-                raise tornado.web.HTTPError(400, 'Unknown response format requested: %s'%format)
+            raise tornado.web.HTTPError(400, 'Unknown response format requested: %s'%format)
 
     def write_error(self, status_code, exc_info=None, **kwargs):
             errortext = 'Internal error'
             if exc_info:
-                    errortext = getattr(exc_info[1], 'log_message', errortext)
+                errortext = getattr(exc_info[1], 'log_message', errortext)
 
             self.write_response({'status' : 'error',
-                                                     'code' : status_code,
-                                                     'reason' : errortext},
-                                                    nofail=True)
+                                 'code' : status_code,
+                                 'reason' : errortext},
+                                nofail=True)
 
 class CoordSystem(object):
     @classmethod
@@ -61,10 +61,12 @@ class CoordSystem(object):
         y = 128.0 / math.pi * 2**zoom * (math.pi - math.log(math.tan(math.pi / 4.0 + lat / 2.0)))
         #print lnglat, '->', (x,y), '->', (x//256,y//256)
         return round(x), round(y)
+
     @classmethod
     def lnglat_to_tile(cls, lnglat, zoom=ZOOM):
         r = cls.lnglat_to_pixel(lnglat, zoom)
         return (int(r[0]//256), 2**zoom - int(r[1]//256) - 1)
+
     @classmethod
     def pixel_to_lnglat(cls, point, zoom=ZOOM):
         x, y = point
