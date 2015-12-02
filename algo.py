@@ -9,6 +9,15 @@ tower_height = 100.0  # foots above MSL
 #plt.show()
 
 def ray():
+    """Trace a ray and determine if a region is viewable.
+
+    Args:
+      tower_height: the elevation in meters above sea level of your antenna
+      elevation_list: an enumerable of heights in a given direction
+    Returns:
+      an enumerable of True/False for visibility
+    """
+
     min_angle = -10000
     for i, height in enumerate(heightmap):
         if tower_height - height == 0:

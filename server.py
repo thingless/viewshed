@@ -7,7 +7,6 @@ import math
 import tornado
 import gdal
 
-TILE_HOST = "http://127.0.0.1:8080"
 PORT = 8888
 ZOOM = 12
 
@@ -51,44 +50,6 @@ class ApiHandler(tornado.web.RequestHandler):
                              'code' : status_code,
                              'reason' : errortext},
                             nofail=True)
-
-class CoordSystem(object):
-    @classmethod
-    def lnglat_to_pixel(cls, lnglat, zoom=ZOOM):
-        lng, lat = lnglat
-        lat *= math.pi / 180.0
-        lng *= math.pi / 180.0
-        x = 128.0 / math.pi * 2**zoom * (lng + math.pi)
-        y = 128.0 / math.pi * 2**zoom * (math.pi - math.log(math.tan(math.pi / 4.0 + lat / 2.0)))
-        #print lnglat, '->', (x,y), '->', (x//256,y//256)
-        return round(x), round(y)
-
-    @classmethod
-    def lnglat_to_tile(cls, lnglat, zoom=ZOOM):
-        r = cls.lnglat_to_pixel(lnglat, zoom)
-        return (int(r[0]//256), 2**zoom - int(r[1]//256) - 1)
-
-    @classmethod
-    def pixel_to_lnglat(cls, point, zoom=ZOOM):
-        x, y = point
-        lat = (4.0 * math.atan(math.exp(math.pi - y * math.pi / (128.0 * 2**zoom))) - math.pi) / 2.0
-        lng = x * math.pi / (128.0 * 2**zoom) - math.pi
-        lat *= 180.0 / math.pi
-        lng *= 180.0 / math.pi
-        return lng, lat
-
-def load_float32_image(buffer):
-    try:
-        gdal.FileFromMemBuffer('/vsimem/temp', buffer)
-        ds = gdal.Open('/vsimem/temp')
-        channel = ds.GetRasterBand(1).ReadAsArray()
-        ds = None #cleanup
-        gdal.Unlink('/vsimem/temp') #cleanup
-        return channel
-    except Exception, e:
-        ds = None #cleanup
-        gdal.Unlink('/vsimem/temp') #cleanup
-        raise e
 
 class ElevationHandler(ApiHandler):
     @gen.coroutine
