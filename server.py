@@ -8,6 +8,7 @@ import tornado
 import gdal
 
 TILE_HOST = "http://127.0.0.1:8080"
+ZOOM = 12
 
 class ApiHandler(tornado.web.RequestHandler):
     def get_format(self):
@@ -52,26 +53,26 @@ class ApiHandler(tornado.web.RequestHandler):
 
 class CoordSystem(object):
     @classmethod
-    def latlng_to_pixel(cls, latlng, zoom=12):
-        lat, lng = latlng
+    def lnglat_to_pixel(cls, lnglat, zoom=ZOOM):
+        lng, lat = lnglat
         lat *= math.pi / 180.0
         lng *= math.pi / 180.0
         x = 128.0 / math.pi * 2**zoom * (lng + math.pi)
         y = 128.0 / math.pi * 2**zoom * (math.pi - math.log(math.tan(math.pi / 4.0 + lat / 2.0)))
-        print latlng, '->', (x,y), '->', (x//256,y//256)
+        #print lnglat, '->', (x,y), '->', (x//256,y//256)
         return round(x), round(y)
     @classmethod
-    def latlng_to_tile(cls, latlng, zoom=12):
-        r = cls.latlng_to_pixel(latlng, zoom)
+    def lnglat_to_tile(cls, lnglat, zoom=ZOOM):
+        r = cls.lnglat_to_pixel(lnglat, zoom)
         return (int(r[0]//256), 2**zoom - int(r[1]//256) - 1)
     @classmethod
-    def pixel_to_latlng(cls, point, zoom=12):
+    def pixel_to_lnglat(cls, point, zoom=ZOOM):
         x, y = point
         lat = (4.0 * math.atan(math.exp(math.pi - y * math.pi / (128.0 * 2**zoom))) - math.pi) / 2.0
         lng = x * math.pi / (128.0 * 2**zoom) - math.pi
         lat *= 180.0 / math.pi
         lng *= 180.0 / math.pi
-        return lat, lng
+        return lng, lat
 
 def load_float32_image(buffer):
     try:
@@ -88,24 +89,25 @@ def load_float32_image(buffer):
 
 class ElevationHandler(ApiHandler):
     @gen.coroutine
-    def get(self, lat, lng):
+    def get(self, lng, lat):
+        print 'Getting elevation at lng, lat: %s, %s' % (lng, lat)
         try:
-            latlng = map(float, (lat, lng))
+            lnglat = map(float, (lng, lat))
         except Exception:
             raise tornado.web.HTTPError(400)
-        tile = CoordSystem.latlng_to_tile(latlng)
+        tile = CoordSystem.lnglat_to_tile(lnglat)
         http_client = AsyncHTTPClient()
-        tile_url = TILE_HOST+"/{z}/{x}/{y}.tiff".format(z=12, x=tile[0], y=tile[1])
+        tile_url = TILE_HOST+"/{z}/{x}/{y}.tiff".format(z=ZOOM, x=tile[0], y=tile[1])
         response = yield http_client.fetch(tile_url)
         if response.code != 200:
             raise tornado.web.HTTPError(response.code)
         im = load_float32_image(response.body)
-        pixel = [int(round(i))%256 for i in CoordSystem.latlng_to_pixel(latlng)]
+        pixel = [int(round(i)) % 256 for i in CoordSystem.lnglat_to_pixel(lnglat, ZOOM)]
         value = im[pixel[1], pixel[0]] #numpy is row,col
         self.write_response({
             "elevation": value,
             "pixel_coords": {"x": pixel[0], "y": pixel[1]},
-            "tile": {"x": tile[0], "y": tile[1], "url": tile_url},
+            "tile": {"x": tile[0], "y": tile[1], "zoom": ZOOM, "url": tile_url},
             "geo_coords": {"latitude": lat, "longitude": lng},
         })
 
