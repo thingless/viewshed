@@ -8,6 +8,7 @@ import tornado
 import gdal
 
 TILE_HOST = "http://127.0.0.1:8080"
+PORT = 8888
 ZOOM = 12
 
 class ApiHandler(tornado.web.RequestHandler):
@@ -42,14 +43,14 @@ class ApiHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(400, 'Unknown response format requested: %s'%format)
 
     def write_error(self, status_code, exc_info=None, **kwargs):
-            errortext = 'Internal error'
-            if exc_info:
-                errortext = getattr(exc_info[1], 'log_message', errortext)
+        errortext = 'Internal error'
+        if exc_info:
+            errortext = getattr(exc_info[1], 'log_message', errortext)
 
-            self.write_response({'status' : 'error',
-                                 'code' : status_code,
-                                 'reason' : errortext},
-                                nofail=True)
+        self.write_response({'status' : 'error',
+                             'code' : status_code,
+                             'reason' : errortext},
+                            nofail=True)
 
 class CoordSystem(object):
     @classmethod
@@ -118,5 +119,6 @@ application = tornado.web.Application([
 ])
 
 if __name__ == "__main__":
-    application.listen(8888)
+    application.listen(PORT)
+    print 'listening on port %s' % PORT
     tornado.ioloop.IOLoop.current().start()
