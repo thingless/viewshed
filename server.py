@@ -6,6 +6,7 @@ import dict2xml
 import math
 import tornado
 import gdal
+from helpers import load_float32_image
 
 PORT = 8888
 ZOOM = 12

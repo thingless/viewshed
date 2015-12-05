@@ -1,8 +1,10 @@
 import math
 import gdal
+import numpy as np
 
 import tornado.queues
 from tornado.httpclient import AsyncHTTPClient
+from skimage.draw import line
 
 ONE_DAY=60*60*24
 
@@ -12,8 +14,6 @@ class UrlGetter(object):
 
     @tornado.gen.coroutine
     def get_urls(self, urls, concurrency=4):
-        if type(urls) == str:
-            urls = [urls]
         queue = tornado.queues.Queue()
         #put the jobs on the queue
         for url in urls:
@@ -22,23 +22,23 @@ class UrlGetter(object):
         for _ in range(concurrency):
             self.work(queue)
         yield queue.join(timeout=datetime.timedelta(seconds=ONE_DAY))
+        raise Return(self.data)
 
     @tornado.gen.coroutine
     def work(self, queue):
         while True:
             try:
                 url = yield queue.get()
-                image = yield self.get_data(url)
-                self.data[url] = image
+                yield self.get_data(url)
             finally:
                 queue.task_done()
 
     @tornado.gen.coroutine
-    def get_data(self, url):
-        if url in self.data:
-            return self.data[url]
-        http_client = AsyncHTTPClient()
-        raise Return(yield http_client.fetch(url))
+    def get_url(self, url):
+        if url not in self.data:
+            res = yield AsyncHTTPClient().fetch(url)
+            self.data[url] = load_float32_image(res.body) if res.code == 200 else None
+        raise Return(self.data[url])
 
 class CoordSystem(object):
     @classmethod
@@ -82,15 +82,20 @@ def load_float32_image(buffer):
         gdal.Unlink('/vsimem/temp') #cleanup
         raise e
 
-class TileGetter(object):
+class TileSampler(object):
     TILE_HOST = "http://127.0.0.1:8080"
 
-    def __init__(self):
+    def __init__(self, zoom=12):
         self._url_getter = UrlGetter()
+        self.zoom = zoom
 
     def _get_tile_url(self, zoom, pixel):
         tile = CoordSystem.pixel_to_tile(pixel, zoom)
         return self.TILE_HOST + "/{z}/{x}/{y}.tiff".format(z=ZOOM, x=tile[0], y=tile[1])
+
+    @gen.coroutine
+    def sample_line(self, p1, p2):
+        rr, cc = line(1, 1, 8, 8)
 
     @gen.coroutine
     def get_pixel_value(self, zoom, pixel):
