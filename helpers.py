@@ -1,6 +1,7 @@
 import math
 import gdal
 import numpy as np
+import itertools
 
 import tornado.queues
 from tornado.httpclient import AsyncHTTPClient
@@ -83,19 +84,37 @@ def load_float32_image(buffer):
         raise e
 
 class TileSampler(object):
+    """Samples tile values. Everything is in global pixel space"""
     TILE_HOST = "http://127.0.0.1:8080"
 
     def __init__(self, zoom=12):
         self._url_getter = UrlGetter()
         self.zoom = zoom
 
-    def _get_tile_url(self, zoom, pixel):
-        tile = CoordSystem.pixel_to_tile(pixel, zoom)
-        return self.TILE_HOST + "/{z}/{x}/{y}.tiff".format(z=ZOOM, x=tile[0], y=tile[1])
+    def _get_tile_url(self, pixel):
+        tile = CoordSystem.pixel_to_tile(pixel, self.zoom)
+        return self.TILE_HOST + "/{z}/{x}/{y}.tiff".format(z=self.zoom, x=tile[0], y=tile[1])
+
+    def _unique_rows(data):
+        uniq = np.unique(data.view(data.dtype.descr * data.shape[1]))
+        return uniq.view(data.dtype).reshape(-1, data.shape[1])
 
     @gen.coroutine
     def sample_line(self, p1, p2):
-        rr, cc = line(1, 1, 8, 8)
+        xs, ys = line(p1[0], p1[1], p2[0], p2[1])
+        coords = np.dstack((xs, ys))[0]
+        tiles_coords = np.dstack((np.floor_divide(xs,256), np.floor_divide(ys,256)))[0]
+        tiles_coords = self._unique_rows(tiles_coords)
+        tiles = yield self.get_tiles(tiles_coords)
+        ret = [ for tile in tiles]
+
+    def _sample_line_in_tiles(self, tiles, xs, ys):
+        return itertools.chain.from_iterable((self._sample_line_in_tile(tile, xs, ys) for tile in tiles))
+
+    def _sample_line_in_tile(self, tile, xs, ys):
+        xs = (xs-tile.x)[x[:,0]>=0) & (x[:,0]<=255)] #filter to just this tile
+        ys = (ys-tile.y)[x[:,0]>=0) & (x[:,0]<=255)]
+        return tile[xs, ys] #select and return values :)
 
     @gen.coroutine
     def get_pixel_value(self, zoom, pixel):
