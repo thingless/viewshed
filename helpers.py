@@ -1,45 +1,11 @@
 import math
 import gdal
 import numpy as np
-import itertools
 
-import tornado.queues
 from tornado.httpclient import AsyncHTTPClient
 from skimage.draw import line
-
-ONE_DAY=60*60*24
-
-class UrlGetter(object):
-    def __init__():
-        self.data = {}
-
-    @tornado.gen.coroutine
-    def get_urls(self, urls, concurrency=4):
-        queue = tornado.queues.Queue()
-        #put the jobs on the queue
-        for url in urls:
-            queue.put(url)
-        #spin up the workers
-        for _ in range(concurrency):
-            self.work(queue)
-        yield queue.join(timeout=datetime.timedelta(seconds=ONE_DAY))
-        raise Return(self.data)
-
-    @tornado.gen.coroutine
-    def work(self, queue):
-        while True:
-            try:
-                url = yield queue.get()
-                yield self.get_data(url)
-            finally:
-                queue.task_done()
-
-    @tornado.gen.coroutine
-    def get_url(self, url):
-        if url not in self.data:
-            res = yield AsyncHTTPClient().fetch(url)
-            self.data[url] = load_float32_image(res.body) if res.code == 200 else None
-        raise Return(self.data[url])
+from tornado.gen import Return
+from tornado import gen
 
 class CoordSystem(object):
     @classmethod
@@ -83,42 +49,96 @@ def load_float32_image(buffer):
         gdal.Unlink('/vsimem/temp') #cleanup
         raise e
 
+class Tile(object):
+    def __init__(self, zoom, pixel, url_template):
+        self.url_template = url_template
+        self.pixel = (self.pixel[0]//255*255, self.pixel[1]//255*255) #round pixel to top left corner
+        self.data = self._retrieve_data() #data is actually a future
+
+    @property
+    def url(self):
+        tile = CoordSystem.pixel_to_tile(self.pixel, self.zoom)
+        return self.url_template.format(z=self.zoom, x=tile[0], y=tile[1])
+
+    @gen.coroutine
+    def _retrieve_data(self):
+        self.res = yield AsyncHTTPClient().fetch(url) #NOTE: currently will throw an http error if status code is not 200
+        Return(load_float32_image(self.res.body) if self.res.code == 200 else None)
+
+
 class TileSampler(object):
-    """Samples tile values. Everything is in global pixel space"""
-    TILE_HOST = "http://127.0.0.1:8080"
+    """Samples tile values. Everything is in global pixel space at specified zoom"""
 
-    def __init__(self, zoom=12):
-        self._url_getter = UrlGetter()
+    def __init__(self, zoom=12, url_template='http://127.0.0.1:8080/{z}/{x}/{y}.tiff'):
         self.zoom = zoom
+        self.url_template = url_template
+        self._tiles = {}
 
-    def _get_tile_url(self, pixel):
-        tile = CoordSystem.pixel_to_tile(pixel, self.zoom)
-        return self.TILE_HOST + "/{z}/{x}/{y}.tiff".format(z=self.zoom, x=tile[0], y=tile[1])
+    def _unique_rows(self, data):
+        """Returns only the unique rows in a numpy array
 
-    def _unique_rows(data):
+        Args:
+            data (array): numpy array to dedupe
+
+        Returns:
+            array: deduped numpy array
+        """
         uniq = np.unique(data.view(data.dtype.descr * data.shape[1]))
         return uniq.view(data.dtype).reshape(-1, data.shape[1])
 
+    @get.coroutine
+    def _sample_tile_pixels(self, tile_pixel, pixels):
+        """Returns pixel's values which intersect a single tile"""
+        xs = pixels[:,0]
+        ys = pixels[:,1]
+        xs = (xs-tile_pixel[0])[x[:,0]>=0) & (x[:,0]<=255)] #filter to just this tile
+        ys = (ys-tile_pixel[1])[x[:,0]>=0) & (x[:,0]<=255)]
+        tile_data = yield self.get_tile(tile_pixel).data
+        raise Return(tile_data[xs, ys])
+
+    def get_tile(self, pixel):
+        """Returns a tile. If tile already exists a cached version will be returned. 
+
+        Args:
+            pixel ((int, int)): A pixel in the tile to be returned
+        """
+        tile_pixel = (pixel[0]//256*256, pixel[1]//256*256)
+        return self._tiles.get(pixel, Tile(self.zoom, tile_pixel, self.url_template))
+
+    @get.coroutine
+    def sample_pixels(self, pixels):
+        """Samples arbitrary pixel values from the map. Returned order may not match input order (will for lines)
+
+        Args:
+            pixels (array): 2d numpy array where each row is a pixel to sample
+
+        Returns:
+            array: numpy array of values
+        """
+        #determin required tiles
+        tile_pixels = np.floor_divide(pixels, 256)*256
+        tile_pixels = self._unique_rows(tile_pixels)
+        #preload tiles
+        for tile_pixel in tile_pixels: self.get_tile(tile_pixel)
+        #sample tiles
+        data = [yield self._sample_tile_pixels(tile_pixel, pixels) for tile_pixel in tile_pixels]
+        Return(np.concatenate(data))
+
     @gen.coroutine
-    def sample_line(self, p1, p2):
-        xs, ys = line(p1[0], p1[1], p2[0], p2[1])
-        coords = np.dstack((xs, ys))[0]
-        tiles_coords = np.dstack((np.floor_divide(xs,256), np.floor_divide(ys,256)))[0]
-        tiles_coords = self._unique_rows(tiles_coords)
-        tiles = yield self.get_tiles(tiles_coords)
-        ret = [ for tile in tiles]
+    def sample_line(self, pixel1, pixel2):
+        """Samples a line of pixel values in the map. Pixel values should be ordered from pixel1 to pixel2.
 
-    def _sample_line_in_tiles(self, tiles, xs, ys):
-        return itertools.chain.from_iterable((self._sample_line_in_tile(tile, xs, ys) for tile in tiles))
+        Args:
+            pixel1 ((int,int)): the 1st coordinate of the line in global pixel space
+            pixel2 ((int,int)): the 2nd coordinate of the line in global pixel space
 
-    def _sample_line_in_tile(self, tile, xs, ys):
-        xs = (xs-tile.x)[x[:,0]>=0) & (x[:,0]<=255)] #filter to just this tile
-        ys = (ys-tile.y)[x[:,0]>=0) & (x[:,0]<=255)]
-        return tile[xs, ys] #select and return values :)
+        Returns:
+            array: numpy array of values
+        """
+        xs, ys = line(pixel1[0], pixel1[1], pixel2[0], pixel2[1])
+        pixels = np.dstack((xs, ys))[0]
+        Return(yield self.sample_pixels(pixels))
 
     @gen.coroutine
-    def get_pixel_value(self, zoom, pixel):
-        """Get the value at a given pixel's global coordinates."""
-        resp = yield self._url_getter.get_data(self._get_tile_url(zoom, pixel))
-        nparr = load_float32_image(resp.body)
-        return nparr[pixel[1] % 256, pixel[0] % 256]
+    def sample_pixel(self, pixel):
+        Return(yield self.sample_pixels(np.array([pixel])))
