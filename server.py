@@ -6,7 +6,7 @@ import dict2xml
 import math
 import tornado
 import gdal
-from helpers import load_float32_image
+from helpers import TileSampler, CoordSystem
 
 PORT = 8888
 ZOOM = 12
@@ -60,19 +60,12 @@ class ElevationHandler(ApiHandler):
             lnglat = map(float, (lng, lat))
         except Exception:
             raise tornado.web.HTTPError(400)
-        tile = CoordSystem.lnglat_to_tile(lnglat)
-        http_client = AsyncHTTPClient()
-        tile_url = TILE_HOST+"/{z}/{x}/{y}.tiff".format(z=ZOOM, x=tile[0], y=tile[1])
-        response = yield http_client.fetch(tile_url)
-        if response.code != 200:
-            raise tornado.web.HTTPError(response.code)
-        im = load_float32_image(response.body)
-        pixel = [int(round(i)) % 256 for i in CoordSystem.lnglat_to_pixel(lnglat, ZOOM)]
-        value = im[pixel[1], pixel[0]] #numpy is row,col
+        sampler = TileSampler()
+        pixel = CoordSystem.lnglat_to_pixel(lnglat)
+        value = yield sampler.sample_pixel(pixel)
         self.write_response({
             "elevation": value,
             "pixel_coords": {"x": pixel[0], "y": pixel[1]},
-            "tile": {"x": tile[0], "y": tile[1], "zoom": ZOOM, "url": tile_url},
             "geo_coords": {"latitude": lat, "longitude": lng},
         })
 

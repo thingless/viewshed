@@ -7,6 +7,8 @@ from skimage.draw import line
 from tornado.gen import Return
 from tornado import gen
 
+ZOOM=12
+
 class CoordSystem(object):
     @classmethod
     def lnglat_to_pixel(cls, lnglat, zoom=ZOOM):
@@ -51,8 +53,9 @@ def load_float32_image(buffer):
 
 class Tile(object):
     def __init__(self, zoom, pixel, url_template):
+        self.zoom = zoom
         self.url_template = url_template
-        self.pixel = (self.pixel[0]//255*255, self.pixel[1]//255*255) #round pixel to top left corner
+        self.pixel = (pixel[0]//255*255, pixel[1]//255*255) #round pixel to top left corner
         self.data = self._retrieve_data() #data is actually a future
 
     @property
@@ -62,14 +65,14 @@ class Tile(object):
 
     @gen.coroutine
     def _retrieve_data(self):
-        self.res = yield AsyncHTTPClient().fetch(url) #NOTE: currently will throw an http error if status code is not 200
+        self.res = yield AsyncHTTPClient().fetch(self.url) #NOTE: currently will throw an http error if status code is not 200
         Return(load_float32_image(self.res.body) if self.res.code == 200 else None)
 
 
 class TileSampler(object):
     """Samples tile values. Everything is in global pixel space at specified zoom"""
 
-    def __init__(self, zoom=12, url_template='http://127.0.0.1:8080/{z}/{x}/{y}.tiff'):
+    def __init__(self, zoom=ZOOM, url_template='http://127.0.0.1:8080/{z}/{x}/{y}.tiff'):
         self.zoom = zoom
         self.url_template = url_template
         self._tiles = {}
@@ -86,15 +89,15 @@ class TileSampler(object):
         uniq = np.unique(data.view(data.dtype.descr * data.shape[1]))
         return uniq.view(data.dtype).reshape(-1, data.shape[1])
 
-    @get.coroutine
+    @gen.coroutine
     def _sample_tile_pixels(self, tile_pixel, pixels):
         """Returns pixel's values which intersect a single tile"""
         xs = pixels[:,0]
         ys = pixels[:,1]
-        xs = (xs-tile_pixel[0])[x[:,0]>=0) & (x[:,0]<=255)] #filter to just this tile
-        ys = (ys-tile_pixel[1])[x[:,0]>=0) & (x[:,0]<=255)]
+        xs = (xs-tile_pixel[0])[(xs[:]>=0) & (xs[:]<=255)] #filter to just this tile
+        ys = (ys-tile_pixel[1])[(ys[:]>=0) & (ys[:]<=255)]
         tile_data = yield self.get_tile(tile_pixel).data
-        raise Return(tile_data[xs, ys])
+        raise Return(tile_data[ys, xs]) #numpy is row column
 
     def get_tile(self, pixel):
         """Returns a tile. If tile already exists a cached version will be returned. 
@@ -103,9 +106,9 @@ class TileSampler(object):
             pixel ((int, int)): A pixel in the tile to be returned
         """
         tile_pixel = (pixel[0]//256*256, pixel[1]//256*256)
-        return self._tiles.get(pixel, Tile(self.zoom, tile_pixel, self.url_template))
+        return self._tiles.get(tile_pixel, Tile(self.zoom, tile_pixel, self.url_template))
 
-    @get.coroutine
+    @gen.coroutine
     def sample_pixels(self, pixels):
         """Samples arbitrary pixel values from the map. Returned order may not match input order (will for lines)
 
@@ -121,7 +124,7 @@ class TileSampler(object):
         #preload tiles
         for tile_pixel in tile_pixels: self.get_tile(tile_pixel)
         #sample tiles
-        data = [yield self._sample_tile_pixels(tile_pixel, pixels) for tile_pixel in tile_pixels]
+        data = [(yield self._sample_tile_pixels(tile_pixel, pixels)) for tile_pixel in tile_pixels]
         Return(np.concatenate(data))
 
     @gen.coroutine
@@ -137,8 +140,8 @@ class TileSampler(object):
         """
         xs, ys = line(pixel1[0], pixel1[1], pixel2[0], pixel2[1])
         pixels = np.dstack((xs, ys))[0]
-        Return(yield self.sample_pixels(pixels))
+        Return((yield self.sample_pixels(pixels)))
 
     @gen.coroutine
     def sample_pixel(self, pixel):
-        Return(yield self.sample_pixels(np.array([pixel])))
+        Return((yield self.sample_pixels(np.array([pixel])))[0])
