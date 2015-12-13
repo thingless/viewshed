@@ -92,12 +92,13 @@ class TileSampler(object):
     @gen.coroutine
     def _sample_tile_pixels(self, tile_pixel, pixels):
         """Returns pixel's values which intersect a single tile"""
-        xs = pixels[:,0]
-        ys = pixels[:,1]
+        xs = pixels[:,1] #numpy is row column
+        ys = pixels[:,0]
         print ys, xs
         print tile_pixel
         xs = (xs-tile_pixel[0])[(xs[:]>=0) & (xs[:]<=255)] #filter to just this tile
         ys = (ys-tile_pixel[1])[(ys[:]>=0) & (ys[:]<=255)]
+        print ys, xs
         tile_data = yield self.get_tile(tile_pixel).data
         raise Return(tile_data[ys, xs]) #numpy is row column
 
