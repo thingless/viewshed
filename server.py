@@ -63,10 +63,11 @@ class ElevationHandler(ApiHandler):
         sampler = TileSampler()
         pixel = CoordSystem.lnglat_to_pixel(lnglat)
         value = yield sampler.sample_pixel(pixel)
+        lnglat = CoordSystem.pixel_to_lnglat(pixel)
         self.write_response({
             "elevation": value,
             "pixel_coords": {"x": pixel[0], "y": pixel[1]},
-            "geo_coords": {"latitude": lat, "longitude": lng},
+            "geo_coords": {"latitude": lnglat[1], "longitude": lnglat[0]},
         })
 
 application = tornado.web.Application([
