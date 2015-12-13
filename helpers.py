@@ -55,7 +55,7 @@ class Tile(object):
     def __init__(self, zoom, pixel, url_template):
         self.zoom = zoom
         self.url_template = url_template
-        self.pixel = (pixel[0]//255*255, pixel[1]//255*255) #round pixel to top left corner
+        self.pixel = (pixel[0]//256*256, pixel[1]//256*256) #round pixel to top left corner
         self.data = self._retrieve_data() #data is actually a future
 
     @property
