@@ -2,45 +2,20 @@ import tornado.ioloop
 import tornado.web
 from tornado.httpclient import AsyncHTTPClient
 from tornado import gen
-import dict2xml
 import math
 import tornado
 import gdal
 from helpers import TileSampler, CoordSystem
+import json
 
 PORT = 8888
 ZOOM = 12
 
 class ApiHandler(tornado.web.RequestHandler):
-    def get_format(self):
-        format = self.get_argument('format', None)
-        if not format:
-            accept = self.request.headers.get('Accept')
-            if accept:
-                if 'javascript' in accept:
-                    format = 'jsonp'
-                elif 'json' in accept:
-                    format = 'json'
-                elif 'xml' in accept:
-                    format = 'xml'
-        return format or 'json'
 
-    def write_response(self, obj, nofail=False):
-        format = self.get_format()
-        if format == 'json':
-            self.set_header("Content-Type", "application/javascript")
-            self.write(json.dumps(obj))
-        elif format == 'jsonp':
-            self.set_header("Content-Type", "application/javascript")
-            callback = self.get_argument('callback', 'callback')
-            self.write('%s(%s);'%(callback, json.dumps(obj)))
-        elif format == 'xml':
-            self.set_header("Content-Type", "application/xml")
-            self.write('<response>%s</response>'%dict2xml.dict2xml(obj))
-        elif nofail:
-            self.write(json.dumps(obj))
-        else:
-            raise tornado.web.HTTPError(400, 'Unknown response format requested: %s'%format)
+    def write_response(self, obj):
+        self.set_header("Content-Type", "application/javascript")
+        self.write(json.dumps(obj))
 
     def write_error(self, status_code, exc_info=None, **kwargs):
         errortext = 'Internal error'
@@ -49,8 +24,7 @@ class ApiHandler(tornado.web.RequestHandler):
 
         self.write_response({'status' : 'error',
                              'code' : status_code,
-                             'reason' : errortext},
-                            nofail=True)
+                             'reason' : errortext})
 
 class ElevationHandler(ApiHandler):
     @gen.coroutine
@@ -65,7 +39,7 @@ class ElevationHandler(ApiHandler):
         value = yield sampler.sample_pixel(pixel)
         lnglat = CoordSystem.pixel_to_lnglat(pixel)
         self.write_response({
-            "elevation": value,
+            "elevation": float(value),
             "pixel_coords": {"x": pixel[0], "y": pixel[1]},
             "geo_coords": {"latitude": lnglat[1], "longitude": lnglat[0]},
         })
