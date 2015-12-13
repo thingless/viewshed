@@ -66,7 +66,7 @@ class Tile(object):
     @gen.coroutine
     def _retrieve_data(self):
         self.res = yield AsyncHTTPClient().fetch(self.url) #NOTE: currently will throw an http error if status code is not 200
-        Return(load_float32_image(self.res.body) if self.res.code == 200 else None)
+        raise Return(load_float32_image(self.res.body) if self.res.code == 200 else None)
 
 
 class TileSampler(object):
@@ -94,6 +94,8 @@ class TileSampler(object):
         """Returns pixel's values which intersect a single tile"""
         xs = pixels[:,0]
         ys = pixels[:,1]
+        print ys, xs
+        print tile_pixel
         xs = (xs-tile_pixel[0])[(xs[:]>=0) & (xs[:]<=255)] #filter to just this tile
         ys = (ys-tile_pixel[1])[(ys[:]>=0) & (ys[:]<=255)]
         tile_data = yield self.get_tile(tile_pixel).data
@@ -125,7 +127,7 @@ class TileSampler(object):
         for tile_pixel in tile_pixels: self.get_tile(tile_pixel)
         #sample tiles
         data = [(yield self._sample_tile_pixels(tile_pixel, pixels)) for tile_pixel in tile_pixels]
-        Return(np.concatenate(data))
+        raise Return(np.concatenate(data))
 
     @gen.coroutine
     def sample_line(self, pixel1, pixel2):
@@ -140,8 +142,8 @@ class TileSampler(object):
         """
         xs, ys = line(pixel1[0], pixel1[1], pixel2[0], pixel2[1])
         pixels = np.dstack((xs, ys))[0]
-        Return((yield self.sample_pixels(pixels)))
+        raise Return((yield self.sample_pixels(pixels)))
 
     @gen.coroutine
     def sample_pixel(self, pixel):
-        Return((yield self.sample_pixels(np.array([pixel])))[0])
+        raise Return((yield self.sample_pixels(np.array([pixel])))[0])
