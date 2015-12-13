@@ -147,3 +147,7 @@ class TileSampler(object):
     @gen.coroutine
     def sample_pixel(self, pixel):
         raise Return((yield self.sample_pixels(np.array([pixel])))[0])
+
+
+#currently /12/655/2515.tiff
+#should be /12/656/2514.tiff
