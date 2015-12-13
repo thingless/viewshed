@@ -17,7 +17,6 @@ class CoordSystem(object):
         lng *= math.pi / 180.0
         x = 128.0 / math.pi * 2**zoom * (lng + math.pi)
         y = 128.0 / math.pi * 2**zoom * (math.pi - math.log(math.tan(math.pi / 4.0 + lat / 2.0)))
-        #print lnglat, '->', (x,y), '->', (x//256,y//256)
         return round(x), round(y)
 
     @classmethod
