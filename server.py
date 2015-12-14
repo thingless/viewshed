@@ -9,6 +9,7 @@ from helpers import TileSampler, CoordSystem
 import json
 from geojson import Feature, Point
 import geojson
+from algo import generate_line_segments, generate_visible, iter_to_runs
 
 PORT = 8888
 ZOOM = 12
@@ -55,8 +56,12 @@ class ShedHandler(ApiHandler):
         except Exception:
             raise tornado.web.HTTPError(400)
         print 'Getting elevation at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
+        center = CoordSystem.lnglat_to_pixel((lng, lat))
         sampler = TileSampler()
-
+        for start, stop in generate_line_segments(radius, center):
+            elevations, pixels = yield sampler.sample_line(start, stop)
+            ret = iter_to_runs(generate_visible(altitude, elevations), pixels)
+        self.write_json(ret)
 
 
 application = tornado.web.Application([

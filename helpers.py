@@ -126,7 +126,7 @@ class TileSampler(object):
         for tile_pixel in tile_pixels: self.get_tile(tile_pixel)
         #sample tiles
         data = [(yield self._sample_tile_pixels(tile_pixel, pixels)) for tile_pixel in tile_pixels]
-        raise Return(np.concatenate(data))
+        raise Return((np.concatenate(data), pixels))
 
     @gen.coroutine
     def sample_line(self, pixel1, pixel2):
@@ -139,13 +139,15 @@ class TileSampler(object):
         Returns:
             array: numpy array of values
         """
+        pixel1 = map(int, pixel1)
+        pixel2 = map(int, pixel2)
         xs, ys = line(pixel1[0], pixel1[1], pixel2[0], pixel2[1])
         pixels = np.dstack((xs, ys))[0]
         raise Return((yield self.sample_pixels(pixels)))
 
     @gen.coroutine
     def sample_pixel(self, pixel):
-        raise Return((yield self.sample_pixels(np.array([pixel])))[0])
+        raise Return((yield self.sample_pixels(np.array([pixel])))[0][0])
 
 
 #currently /12/655/2515.tiff
