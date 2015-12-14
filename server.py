@@ -35,13 +35,13 @@ class ApiHandler(tornado.web.RequestHandler):
 class ElevationHandler(ApiHandler):
     @gen.coroutine
     def get(self, lng, lat):
-        print 'Getting elevation at lng, lat: %s, %s' % (lng, lat)
         try:
             lnglat = map(float, (lng, lat))
         except Exception:
             raise tornado.web.HTTPError(400)
         sampler = TileSampler()
         pixel = CoordSystem.lnglat_to_pixel(lnglat)
+        print 'Getting elevation at lng,lat:%s,%s %s,%s:' % (lng, lat, pixel[0], pixel[1])
         value = yield sampler.sample_pixel(pixel)
         lnglat = CoordSystem.pixel_to_lnglat(pixel)
         self.write_geojson(Feature(geometry=Point(lnglat), properties={
@@ -51,6 +51,7 @@ class ElevationHandler(ApiHandler):
 class ShedHandler(ApiHandler):
     @gen.coroutine
     def get(self, lng, lat, altitude, radius):
+        #168036.0, 404958.0
         try:
             lng, lat, altitude, radius = map(float, (lng, lat, altitude, radius))
         except Exception:
@@ -59,6 +60,7 @@ class ShedHandler(ApiHandler):
         center = CoordSystem.lnglat_to_pixel((lng, lat))
         sampler = TileSampler()
         for start, stop in generate_line_segments(radius, center):
+            print start, stop
             elevations, pixels = yield sampler.sample_line(start, stop)
             ret = iter_to_runs(generate_visible(altitude, elevations), pixels)
         self.write_json(ret)
