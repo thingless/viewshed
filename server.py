@@ -47,8 +47,21 @@ class ElevationHandler(ApiHandler):
             "elevation":float(value)
         }))
 
+class ShedHandler(ApiHandler):
+    @gen.coroutine
+    def get(self, lng, lat, altitude, radius):
+        try:
+            lng, lat, altitude, radius = map(float, (lng, lat, altitude, radius))
+        except Exception:
+            raise tornado.web.HTTPError(400)
+        print 'Getting elevation at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
+        sampler = TileSampler()
+
+
+
 application = tornado.web.Application([
     (r"/elevation/(-?\d+\.?\d*)/(-?\d+\.?\d*)", ElevationHandler),
+    (r"/shed/(-?\d+\.?\d*)/(-?\d+\.?\d*)/(\d+\.?\d*)/(\d+\.?\d*)", ShedHandler),
 ])
 
 if __name__ == "__main__":
