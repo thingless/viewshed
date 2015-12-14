@@ -52,6 +52,7 @@ class ShedHandler(ApiHandler):
     @gen.coroutine
     def get(self, lng, lat, altitude, radius):
         #168036.0, 404958.0
+        #(168036.0, 404958.0) (168038.83662185463, 404948.41075725335)
         try:
             lng, lat, altitude, radius = map(float, (lng, lat, altitude, radius))
         except Exception:
@@ -59,11 +60,13 @@ class ShedHandler(ApiHandler):
         print 'Getting elevation at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
         center = CoordSystem.lnglat_to_pixel((lng, lat))
         sampler = TileSampler()
+        line_segments = []
         for start, stop in generate_line_segments(radius, center):
             print start, stop
             elevations, pixels = yield sampler.sample_line(start, stop)
-            ret = iter_to_runs(generate_visible(altitude, elevations), pixels)
-        self.write_json(ret)
+            line_segments.extend(iter_to_runs(generate_visible(altitude, elevations), pixels))
+        line_segments = [map(tuple, segment) for segment in line_segments]
+        self.write_json(line_segments)
 
 
 application = tornado.web.Application([

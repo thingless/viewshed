@@ -107,7 +107,9 @@ class TileSampler(object):
             pixel ((int, int)): A pixel in the tile to be returned
         """
         tile_pixel = (pixel[0]//256*256, pixel[1]//256*256)
-        return self._tiles.get(tile_pixel, Tile(self.zoom, tile_pixel, self.url_template))
+        if tile_pixel not in self._tiles:
+            self._tiles[tile_pixel] = Tile(self.zoom, tile_pixel, self.url_template)
+        return self._tiles[tile_pixel]
 
     @gen.coroutine
     def sample_pixels(self, pixels):
