@@ -3,16 +3,18 @@ from __future__ import division
 import math
 import itertools
 
-def iter_to_runs(inp):
+SPACING = 2
+
+def iter_to_runs(visibles, pixels):
     cur_val = 6666666
     start_idx = None
 
     out = []
-    for i, val in enumerate(itertools.chain(inp, [None])):
+    for i, val in enumerate(itertools.chain(visibles, [None])):
         if cur_val != val:
             if cur_val is True:
                 # we just ended a run of "True" values
-                out.append((start_idx, i - 1))
+                out.append((pixels[start_idx], pixels[i - 1]))
             cur_val = val
             start_idx = i
 
