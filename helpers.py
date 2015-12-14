@@ -150,5 +150,6 @@ class TileSampler(object):
         raise Return((yield self.sample_pixels(np.array([pixel])))[0][0])
 
 
-#currently /12/655/2515.tiff
-#should be /12/656/2514.tiff
+#Testing urls
+#http://localhost:8888/elevation/-122.30933440000001/37.8666298
+#http://localhost:8888/shed/-122.30933440000001/37.8666298/10/300
