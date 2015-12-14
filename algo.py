@@ -33,7 +33,7 @@ def generate_line_segments(radius, center):
     ang = 0
     while ang < 2 * math.pi:
         ang += ang_step
-        yield (center, (radius * math.cos(ang), radius * math.sin(ang)))
+        yield (center, (center[0] + radius * math.cos(ang), center[1] + radius * math.sin(ang)))
 
 def generate_visible(tower_height, heightmap):
     """Trace a ray and determine if a region is viewable.
