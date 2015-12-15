@@ -9,11 +9,15 @@ var Row = require('react-bootstrap').Row;
 var Col = require('react-bootstrap').Col;
 var Map = require('react-leaflet').Map;
 var TileLayer = require('react-leaflet').TileLayer;
+var Promise = (window && window.Promise) || require('promise-js');
 
 function geocoding(searchTerm){
-  var url = 'http://nominatim.openstreetmap.org/search.php?' + querystring.stringify({
-    q:searchTerm,
-    format:'jsonv2'
+  return new Promise(function(resolve, reject) {
+    var url = 'http://nominatim.openstreetmap.org/search.php?' + querystring.stringify({
+      q:searchTerm,
+      format:'jsonv2'
+    });
+    $.ajax(url, {error:reject, success:resolve });
   });
 }
 
@@ -42,5 +46,6 @@ $(function(){ReactDOM.render(<ViewShed/>, document.getElementById("application")
 _.extend(window, {
   '_':_,
   'geocoding':geocoding,
-  '$':$
+  '$':$,
+  'Promise':Promise
 });
