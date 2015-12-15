@@ -2,12 +2,20 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var $ = require('jquery');
 var _ = require('lodash');
+var querystring = require('querystring');
 var Alert = require('react-bootstrap').Alert;
 var Grid = require('react-bootstrap').Grid;
 var Row = require('react-bootstrap').Row;
 var Col = require('react-bootstrap').Col;
 var Map = require('react-leaflet').Map;
 var TileLayer = require('react-leaflet').TileLayer;
+
+function geocoding(searchTerm){
+  var url = 'http://nominatim.openstreetmap.org/search.php?' + querystring.stringify({
+    q:searchTerm,
+    format:'jsonv2'
+  });
+}
 
 var ViewShed = React.createClass({
   render: function(){
@@ -30,3 +38,9 @@ var ViewShed = React.createClass({
 });
 
 $(function(){ReactDOM.render(<ViewShed/>, document.getElementById("application"));})
+
+_.extend(window, {
+  '_':_,
+  'geocoding':geocoding,
+  '$':$
+});
