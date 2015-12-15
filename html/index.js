@@ -41,9 +41,10 @@ var ViewShed = React.createClass({
   }
 });
 
+//Render when body loaded
 $(function(){ReactDOM.render(<ViewShed/>, document.getElementById("application"));})
-
-_.extend(window, {
+//export some things to window
+_.extend(window || {}, {
   '_':_,
   'geocoding':geocoding,
   '$':$,
