@@ -24,7 +24,7 @@ function geocoding(searchTerm){
 var ViewShed = React.createClass({
   render: function(){
     return (
-      <Grid bsClass="fill-height" fluid={true} style={{height:"100%"}}>
+      <Grid fluid={true} style={{height:"100%"}}>
         <Row>
           <Col md={8}><code>&lt;{'Col xs={12} md={8}'} /&gt;</code></Col>
           <Col md={4}><code>&lt;{'Col xs={6} md={4}'} /&gt;</code></Col>
