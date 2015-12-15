@@ -12,14 +12,14 @@ var TileLayer = require('react-leaflet').TileLayer;
 var ViewShed = React.createClass({
   render: function(){
     return (
-      <Grid>
+      <Grid bsClass="fill-height" fluid={true} style={{height:"100%"}}>
         <Row>
           <Col md={8}><code>&lt;{'Col xs={12} md={8}'} /&gt;</code></Col>
           <Col md={4}><code>&lt;{'Col xs={6} md={4}'} /&gt;</code></Col>
         </Row>
-        <Row>
-          <Col md={12}>
-            <Map center={[51.505, -0.09]} zoom={12}>
+        <Row style={{height:"100%"}}>
+          <Col md={12} style={{height:"100%"}}>
+            <Map center={[51.505, -0.09]} zoom={12} style={{height:"100%"}}>
               <TileLayer url='http://{s}.tile.osm.org/{z}/{x}/{y}.png' attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'/>
             </Map>
           </Col>

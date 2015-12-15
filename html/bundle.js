@@ -16,7 +16,7 @@ var ViewShed = React.createClass({
   render: function () {
     return React.createElement(
       Grid,
-      null,
+      { bsClass: 'fill-height', fluid: true, style: { height: "100%" } },
       React.createElement(
         Row,
         null,
@@ -45,13 +45,13 @@ var ViewShed = React.createClass({
       ),
       React.createElement(
         Row,
-        null,
+        { style: { height: "100%" } },
         React.createElement(
           Col,
-          { md: 12 },
+          { md: 12, style: { height: "100%" } },
           React.createElement(
             Map,
-            { center: [51.505, -0.09], zoom: 12 },
+            { center: [51.505, -0.09], zoom: 12, style: { height: "100%" } },
             React.createElement(TileLayer, { url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png', attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors' })
           )
         )
