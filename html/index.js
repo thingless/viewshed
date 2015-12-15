@@ -17,7 +17,18 @@ function geocoding(searchTerm){
       q:searchTerm,
       format:'jsonv2'
     });
-    $.ajax(url, {error:reject, success:resolve });
+    $.ajax(url, {error:reject, success:resolve});
+  });
+}
+
+function reverseGeocoding(lon, lat){
+  return new Promise(function(resolve, reject) {
+    var url = 'http://nominatim.openstreetmap.org/reverse?' + querystring.stringify({
+      format:'jsonv2',
+      lat:lat,
+      lon:lon
+    });
+    $.ajax(url, {error:reject, success:resolve});
   });
 }
 
@@ -46,7 +57,8 @@ $(function(){ReactDOM.render(<ViewShed/>, document.getElementById("application")
 //export some things to window
 _.extend(window || {}, {
   '_':_,
-  'geocoding':geocoding,
+  geocoding:geocoding,
   '$':$,
-  'Promise':Promise
+  Promise:Promise,
+  reverseGeocoding:reverseGeocoding
 });
