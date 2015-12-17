@@ -6,11 +6,15 @@ var querystring = require('querystring');
 var BS = require('react-bootstrap');
 var Map = require('react-leaflet').Map;
 var TileLayer = require('react-leaflet').TileLayer;
+var Leaflet = require('react-leaflet');
 var Promise = (window && window.Promise) || require('promise-js');
 var Forms = require('./forms');
 
 var ViewShed = React.createClass({
+  //dblclick
+  //getLeafletElement
   render: function(){
+    this.latlng = [51.505, -0.09];
     return (
       <BS.Grid fluid={true} style={{height:"100%"}}>
         <Formsy.Form>
@@ -31,8 +35,9 @@ var ViewShed = React.createClass({
         </Formsy.Form>
         <BS.Row style={{height:"100%"}}>
           <BS.Col md={12} style={{height:"100%"}}>
-            <Map center={[51.505, -0.09]} zoom={12} style={{height:"100%"}}>
+            <Map center={this.latlng} zoom={12} style={{height:"100%"}}>
               <TileLayer url='http://{s}.tile.osm.org/{z}/{x}/{y}.png' attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'/>
+              <Leaflet.CircleMarker center={this.latlng}></Leaflet.CircleMarker>
             </Map>
           </BS.Col>
         </BS.Row>

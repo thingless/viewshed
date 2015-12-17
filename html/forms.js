@@ -27,7 +27,7 @@ var GeocodingInput = React.createClass(_.extend({}, Formsy.Mixin, {
     Formsy.Mixin.resetValue.call(this);
   },
   componentDidMount: function(){
-    $(ReactDOM.findDOMNode(this.refs.geosuggest)).find('input').addClass('form-control');
+    $(ReactDOM.findDOMNode(this.refs.geosuggest)).find('input').addClass('form-control'); //hacky but meh
   },
   render: function(){
     return (
