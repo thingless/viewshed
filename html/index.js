@@ -7,21 +7,28 @@ var BS = require('react-bootstrap');
 var Map = require('react-leaflet').Map;
 var TileLayer = require('react-leaflet').TileLayer;
 var Promise = (window && window.Promise) || require('promise-js');
-var Geosuggest = require('react-geosuggest');
 var Forms = require('./forms');
 
 var ViewShed = React.createClass({
   render: function(){
     return (
       <BS.Grid fluid={true} style={{height:"100%"}}>
-        <BS.Row>
-          <BS.Col md={8}><Geosuggest /></BS.Col>
-          <BS.Col md={4}>
-            <Formsy.Form>
+        <Formsy.Form>
+          <BS.Row>
+            <BS.Col md={4}><
+              Forms.GeocodingInput name="place"></Forms.GeocodingInput>
+            </BS.Col>
+            <BS.Col md={3}>
               <Forms.LatInput name="lat"></Forms.LatInput>
-            </Formsy.Form>
-          </BS.Col>
-        </BS.Row>
+            </BS.Col>
+            <BS.Col md={3}>
+              <Forms.LngInput name="lng"></Forms.LngInput>
+            </BS.Col>
+            <BS.Col md={2}>
+              <button className="btn btn-primary" type="submit">Compute Viewshed</button>
+            </BS.Col>
+          </BS.Row>
+        </Formsy.Form>
         <BS.Row style={{height:"100%"}}>
           <BS.Col md={12} style={{height:"100%"}}>
             <Map center={[51.505, -0.09]} zoom={12} style={{height:"100%"}}>
@@ -40,5 +47,6 @@ $(function(){ReactDOM.render(<ViewShed/>, document.getElementById("application")
 _.extend(window || {}, {
   '_':_,
   '$':$,
-  Promise:Promise
+  Promise:Promise,
+  ReactDOM:ReactDOM
 });

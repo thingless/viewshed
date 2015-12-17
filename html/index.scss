@@ -2,7 +2,15 @@
 @import "node_modules/leaflet/dist/leaflet";
 @import "node_modules/react-geosuggest/module/geosuggest";
 
-html, body, #application{
+html, body, #application {
 	height:100%;
 }
 
+.form-group .geosuggest {
+	margin:0;
+	width: 100%;
+
+	ul {
+		z-index: 99999;
+	}
+}
