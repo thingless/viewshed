@@ -39,8 +39,8 @@ var ViewShed = React.createClass({
     var submitClass = this.state.submitDisabled ? "btn btn-disabled" : "btn btn-primary";
     return (
       <BS.Grid fluid={true} style={{height:"100%"}}>
-        <BS.Row>
-          <Formsy.Form style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
+        <Formsy.Form style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
+          <BS.Row>
             <BS.Col md={4}><
               Forms.GeocodingInput name="place"></Forms.GeocodingInput>
             </BS.Col>
@@ -62,9 +62,9 @@ var ViewShed = React.createClass({
             </BS.Col>
             <BS.Col md={2}>
               <button style={{width:"100%"}} className={submitClass} type="submit" disabled={this.state.submitDisabled}>Compute Viewshed</button>
-            </BS.Col>
-          </Formsy.Form>  
-        </BS.Row>
+            </BS.Col>  
+          </BS.Row>
+        </Formsy.Form>
         <BS.Row style={{height:"100%"}}>
           <BS.Col md={12} style={{height:"100%"}}>
             <Map center={latlng} zoom={12} style={{height:"100%"}}>
