@@ -15,7 +15,8 @@ Formsy.addValidationRule('isLessThanOrEqual', function (values, value, number) {
 
 var GeocodingInput = React.createClass(_.extend({}, Formsy.Mixin, {
   changeValue: function (suggest) {
-    this.setValue(suggest.location);
+    this.prop.onSuggestSelect && this.prop.onSuggestSelect(suggest);
+    this.setValue(suggest);
   },
   getDefaultProps: function(){
     return {

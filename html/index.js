@@ -16,7 +16,8 @@ var ViewShed = React.createClass({
       lat:51.505,
       lng:-0.09,
       submitDisabled:true,
-      radius:100
+      radius:1000,
+      elevation: 3
     }
   },
   disableSubmit: function(){
@@ -29,9 +30,22 @@ var ViewShed = React.createClass({
       lat: parseFloat(values.lat),
       lng: parseFloat(values.lng),
       submitDisabled: false,
-      radius: parseFloat(values.radius)
+      radius: parseFloat(values.radius),
+      elevation: parseFloat(values.elevation)
     });
   }, 750),
+  geocodingSelect: function(suggest){
+    this.setState({
+      lat: suggest.location[lat],
+      lng: suggest.location[lng]
+    });
+  },
+  mapDoubleClicked: function(event){
+    this.setState({
+      lat: event.latlng.lat,
+      lng: event.latlng.lng
+    });
+  },
   //dblclick
   //getLeafletElement
   render: function(){
@@ -41,35 +55,47 @@ var ViewShed = React.createClass({
       <BS.Grid fluid={true} style={{height:"100%"}}>
         <Formsy.Form style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
           <BS.Row>
-            <BS.Col md={4}><
-              Forms.GeocodingInput name="place"></Forms.GeocodingInput>
+            <BS.Col md={6}><
+              Forms.GeocodingInput name="place" onSuggestSelect={this.geocodingSelect}></Forms.GeocodingInput>
             </BS.Col>
-            <BS.Col md={2}>
-              <Forms.LatInput name="lat" required={true}></Forms.LatInput>
+            <BS.Col md={3}>
+              <Forms.LatInput name="lat" required={true} value={this.state.lat}></Forms.LatInput>
             </BS.Col>
-            <BS.Col md={2}>
-              <Forms.LngInput name="lng" required={true}></Forms.LngInput>
-            </BS.Col>
-            <BS.Col md={2}>
-              <Forms.TextInput name="radius" placeholder="radius" value={this.state.radius} required={true}
-                validations='isInt,isGreaterThanOrEqual:10,isLessThanOrEqual:1000'
+            <BS.Col md={3}>
+              <Forms.LngInput name="lng" required={true} value={this.state.lng}></Forms.LngInput>
+            </BS.Col> 
+          </BS.Row>
+          <BS.Row>
+            <BS.Col md={4}>
+              <Forms.TextInput name="elevation" placeholder="elevation" value={this.state.elevation} required={true}
+                validations='isNumeric,isGreaterThanOrEqual:0,isLessThanOrEqual:5000'
                 validationErrors={{
-                  isInt:'radius must an whole number',
-                  isGreaterThanOrEqual:'radius must be greater than 10',
-                  isLessThanOrEqual:'radius must be less than 1000'
+                  isNumeric:'elevation must be a number',
+                  isGreaterThanOrEqual:'elevation must be greater than 0',
+                  isLessThanOrEqual:'elevation must be less than 5000'
                 }}>
               </Forms.TextInput>
             </BS.Col>
-            <BS.Col md={2}>
+            <BS.Col md={4}>
+              <Forms.TextInput name="radius" placeholder="radius" value={this.state.radius} required={true}
+                validations='isInt,isGreaterThanOrEqual:10,isLessThanOrEqual:10000'
+                validationErrors={{
+                  isInt:'radius must an whole number',
+                  isGreaterThanOrEqual:'radius must be greater than 10',
+                  isLessThanOrEqual:'radius must be less than 10000'
+                }}>
+              </Forms.TextInput>
+            </BS.Col>
+            <BS.Col md={4}>
               <button style={{width:"100%"}} className={submitClass} type="submit" disabled={this.state.submitDisabled}>Compute Viewshed</button>
-            </BS.Col>  
+            </BS.Col> 
           </BS.Row>
         </Formsy.Form>
         <BS.Row style={{height:"100%"}}>
           <BS.Col md={12} style={{height:"100%"}}>
-            <Map center={latlng} zoom={12} style={{height:"100%"}}>
+            <Map center={latlng} zoom={12} style={{height:"100%"}} onLeafletDblclick={this.mapDoubleClicked} options={{doubleClickZoom:'center'}}>
               <TileLayer url='http://{s}.tile.osm.org/{z}/{x}/{y}.png' attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'/>
-              <Leaflet.CircleMarker radius={this.state.radius} center={latlng}></Leaflet.CircleMarker>
+              <Leaflet.Circle radius={this.state.radius} center={latlng}></Leaflet.Circle>
             </Map>
           </BS.Col>
         </BS.Row>
