@@ -55,7 +55,7 @@ var ViewShed = React.createClass({
     if (map){
       map.leafletElement.doubleClickZoom.disable();
       var zoom = map.leafletElement.getZoom() || 12;
-      map.leafletElement.setView(latlng, zoom, {animate: false});
+      map.leafletElement.setView(latlng, zoom, {animate: true});
     }
     return (
       <BS.Grid fluid={true} style={{height:"100%"}}>
