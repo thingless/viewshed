@@ -10,6 +10,12 @@ var Leaflet = require('react-leaflet');
 var Promise = (window && window.Promise) || require('promise-js');
 var Forms = require('./forms');
 
+function geoip(){
+  return new Promise(function(resolve, reject){
+    $.ajax('http://freegeoip.net/json/', {error:reject, success:resolve});
+  });
+}
+
 var ViewShed = React.createClass({
   getInitialState: function(){
     return {
@@ -36,8 +42,8 @@ var ViewShed = React.createClass({
   }, 750),
   geocodingSelect: function(suggest){
     this.setState({
-      lat: suggest.location[lat],
-      lng: suggest.location[lng]
+      lat: suggest.location.lat,
+      lng: suggest.location.lng
     });
   },
   mapDoubleClicked: function(event){
@@ -45,6 +51,14 @@ var ViewShed = React.createClass({
       lat: event.latlng.lat,
       lng: event.latlng.lng
     });
+  },
+  componentDidMount: function(){
+    geoip().then(function(location){
+      this.setState({
+        lat: location.latitude,
+        lng: location.longitude
+      });
+    }.bind(this));
   },
   //dblclick
   //getLeafletElement
