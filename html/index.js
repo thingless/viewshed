@@ -51,6 +51,12 @@ var ViewShed = React.createClass({
   render: function(){
     var latlng = [this.state.lat, this.state.lng];
     var submitClass = this.state.submitDisabled ? "btn btn-disabled" : "btn btn-primary";
+    var map = this.refs.map;
+    if (map){
+      map.leafletElement.doubleClickZoom.disable();
+      var zoom = map.leafletElement.getZoom() || 12;
+      map.leafletElement.setView(latlng, zoom, {animate: false});
+    }
     return (
       <BS.Grid fluid={true} style={{height:"100%"}}>
         <Formsy.Form style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
@@ -93,7 +99,7 @@ var ViewShed = React.createClass({
         </Formsy.Form>
         <BS.Row style={{height:"100%"}}>
           <BS.Col md={12} style={{height:"100%"}}>
-            <Map center={latlng} zoom={12} style={{height:"100%"}} onLeafletDblclick={this.mapDoubleClicked} options={{doubleClickZoom:'center'}}>
+            <Map ref="map" style={{height:"100%"}} onLeafletDblclick={this.mapDoubleClicked}>
               <TileLayer url='http://{s}.tile.osm.org/{z}/{x}/{y}.png' attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'/>
               <Leaflet.Circle radius={this.state.radius} center={latlng}></Leaflet.Circle>
             </Map>
