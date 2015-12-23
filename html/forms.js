@@ -58,7 +58,10 @@ var LatInput = React.createClass(_.extend({}, Formsy.Mixin, {
   render: function () {
     return (
       <div className={this.showRequired() || this.showError() ? 'form-group has-error' : 'form-group'}>
-        <input type="text" className="form-control" placeholder="latitude" onChange={this.changeValue} value={this.getValue()}></input>
+        <div className="input-group">
+          <span className="input-group-addon">Lat</span>
+          <input type="text" className="form-control" placeholder="latitude" onChange={this.changeValue} value={this.getValue()}></input>
+        </div>
         <span className="help-block">{this.getErrorMessage()}</span>
       </div>
     );
@@ -72,7 +75,10 @@ var TextInput = React.createClass(_.extend({}, Formsy.Mixin, {
   render: function () {
     return (
       <div className={this.showRequired() || this.showError() ? 'form-group has-error' : 'form-group'}>
-        <input type="text" className="form-control" placeholder={this.props.placeholder || ''} onChange={this.changeValue} value={this.getValue()}></input>
+        <div className="input-group">
+          <span className="input-group-addon">{this.props.placeholder || ''}</span>
+          <input type="text" className="form-control" placeholder={this.props.placeholder || ''} onChange={this.changeValue} value={this.getValue()}></input>
+        </div>
         <span className="help-block">{this.getErrorMessage()}</span>
       </div>
     );
@@ -96,7 +102,10 @@ var LngInput = React.createClass(_.extend({}, Formsy.Mixin, {
   render: function () {
     return (
       <div className={this.showRequired() || this.showError() ? 'form-group has-error' : 'form-group'}>
-        <input type="text" className="form-control" placeholder="longitude" onChange={this.changeValue} value={this.getValue()}></input>
+        <div className="input-group">
+          <span className="input-group-addon">Lng</span>
+          <input type="text" className="form-control" placeholder="longitude" onChange={this.changeValue} value={this.getValue()}></input>
+        </div>
         <span className="help-block">{this.getErrorMessage()}</span>
       </div>
     );

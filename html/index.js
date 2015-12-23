@@ -87,7 +87,7 @@ var ViewShed = React.createClass({
           </BS.Row>
           <BS.Row>
             <BS.Col md={4}>
-              <Forms.TextInput name="elevation" placeholder="elevation" value={this.state.elevation} required={true}
+              <Forms.TextInput name="elevation" placeholder="Elevation" value={this.state.elevation} required={true}
                 validations='isNumeric,isGreaterThanOrEqual:0,isLessThanOrEqual:5000'
                 validationErrors={{
                   isNumeric:'elevation must be a number',
@@ -97,7 +97,7 @@ var ViewShed = React.createClass({
               </Forms.TextInput>
             </BS.Col>
             <BS.Col md={4}>
-              <Forms.TextInput name="radius" placeholder="radius" value={this.state.radius} required={true}
+              <Forms.TextInput name="radius" placeholder="Radius" value={this.state.radius} required={true}
                 validations='isInt,isGreaterThanOrEqual:10,isLessThanOrEqual:10000'
                 validationErrors={{
                   isInt:'radius must an whole number',
