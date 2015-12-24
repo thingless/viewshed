@@ -154,7 +154,9 @@ var ApiViewer = React.createClass({
       mapCenter = mapCenter || feature.properties.uiMapCenter;
     }
     window.L.geoJson(window.geoJsonData,{onEachFeature:onEachFeature}).addTo(this.refs.map.leafletElement);
-    this.refs.map.leafletElement.setView([mapCenter[1],mapCenter[0]], 13, {animate: false});
+    if(mapCenter){
+      this.refs.map.leafletElement.setView([mapCenter[1],mapCenter[0]], 13, {animate: false});
+    }
   },
   render: function(){
     return (

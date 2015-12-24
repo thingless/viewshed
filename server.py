@@ -86,7 +86,9 @@ class ShedHandler(ApiHandler):
             "calculationAltitude":altitude,
             "calculationRaduis":float(self.get_argument('radius', 1000)),
             "calculationLat":lat,
-            "calculationLng":lng
+            "calculationLng":lng,
+            "uiMapCenter":line_segments[0][0],
+            "uiPopupContent":"Viewshed at {} meters above sea level".format(altitude)
         }))
 
 application = tornado.web.Application([
