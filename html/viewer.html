@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+	{% if geojson %}
+	<script type="text/javascript">
+	window.geoJsonData = {% raw geojson %}
+	</script>
+	{% end %}
+	<script src="/bundle.js"></script>
+	<link href="/bundle.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="viewer"></div>
+</body>
+</html>

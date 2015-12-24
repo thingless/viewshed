@@ -11,11 +11,20 @@ from algo import generate_line_segments, generate_visible, iter_to_runs
 PORT = 8888
 ZOOM = 12
 
+#class MainHandler(tornado.web.RequestHandler):
+#    def get(self):
+#        items = ["Item 1", "Item 2", "Item 3"]
+#        self.render("template.html", title="My title", items=items)
+
 class ApiHandler(tornado.web.RequestHandler):
 
-    def write_geojson(self, obj):
-        self.set_header("Content-Type", "application/vnd.geo+json")
-        self.write(geojson.dumps(obj))
+    def write_api_response(self, format, obj):
+        format = format.lower()
+        if format=="geojson":
+            self.set_header("Content-Type", "application/vnd.geo+json")
+            self.write(geojson.dumps(obj))
+        elif format=="html":
+            self.render("html/viewer.html", title="Viewshed API", geojson=geojson.dumps(obj))
 
     def write_json(self, obj):
         self.set_header("Content-Type", "application/javascript")
@@ -43,7 +52,7 @@ class ElevationHandler(ApiHandler):
         print 'Getting elevation at lng,lat:%s,%s %s,%s:' % (lng, lat, pixel[0], pixel[1])
         value = yield sampler.sample_pixel(pixel)
         lnglat = CoordSystem.pixel_to_lnglat(pixel)
-        self.write_geojson(Feature(geometry=Point(lnglat), properties={
+        self.write_api_response(format, Feature(geometry=Point(lnglat), properties={
             "elevation":float(value)
         }))
 
@@ -71,7 +80,7 @@ class ShedHandler(ApiHandler):
             line_segments.extend(iter_to_runs(generate_visible(altitude, elevations), pixels))
 
         line_segments = [[CoordSystem.pixel_to_lnglat(coord) for coord in segment] for segment in line_segments]
-        self.write_geojson(Feature(geometry=MultiLineString(line_segments), properties={
+        self.write_api_response(format, Feature(geometry=MultiLineString(line_segments), properties={
             "calculationAltitude":altitude,
             "calculationRaduis":float(self.get_argument('radius', 1000)),
             "calculationLat":lat,
@@ -79,6 +88,8 @@ class ShedHandler(ApiHandler):
         }))
 
 application = tornado.web.Application([
+    (r'/bundle\.js()', tornado.web.StaticFileHandler, {'path': 'html/bundle.js'}),
+    (r'/bundle\.css()', tornado.web.StaticFileHandler, {'path': 'html/bundle.css'}),
     (r"/api/v1/elevation/(\w+)", ElevationHandler),
     (r"/api/v1/viewshed/(\w+)", ShedHandler),
 ])

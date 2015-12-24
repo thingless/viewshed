@@ -145,7 +145,14 @@ var ViewShed = React.createClass({
 });
 
 //Render when body loaded
-$(function(){ReactDOM.render(<ViewShed/>, document.getElementById("application"));})
+$(function(){
+  if(document.getElementById("application")){
+    ReactDOM.render(<ViewShed/>, document.getElementById("application"));
+  }
+  else if(document.getElementById("viewer")){
+    ReactDOM.render(<ViewShed/>, document.getElementById("viewer"));
+  }
+});
 //export some things to window
 _.extend(window || {}, {
   '_':_,
