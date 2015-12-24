@@ -80,8 +80,6 @@ var ViewShed = React.createClass({
         console.log(arguments);
       });
   },
-  //dblclick
-  //getLeafletElement
   render: function(){
     var latlng = [this.state.lat, this.state.lng];
     var submitClass = this.state.submitDisabled ? "btn btn-disabled" : "btn btn-primary";
@@ -144,13 +142,42 @@ var ViewShed = React.createClass({
   }
 });
 
+var ApiViewer = React.createClass({
+  componentDidMount: function(){
+    var mapCenter = null;
+    function onEachFeature(feature, layer){
+      //add popup
+      if(feature.properties && feature.properties.uiPopupContent) {
+        layer.bindPopup(feature.properties.uiPopupContent);
+      }
+      //set map center
+      mapCenter = mapCenter || feature.properties.uiMapCenter;
+    }
+    window.L.geoJson(window.geoJsonData,{onEachFeature:onEachFeature}).addTo(this.refs.map.leafletElement);
+    this.refs.map.leafletElement.setView([mapCenter[1],mapCenter[0]], 13, {animate: false});
+  },
+  render: function(){
+    return (
+      <BS.Grid fluid={true} style={{height:"100%"}}>
+        <BS.Row style={{height:"100%"}}>
+          <BS.Col md={12} style={{height:"100%"}}>
+            <Map ref="map" style={{height:"100%"}}>
+              <TileLayer url='http://{s}.tile.osm.org/{z}/{x}/{y}.png' attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'/>
+            </Map>
+          </BS.Col>
+        </BS.Row>
+      </BS.Grid>
+    );
+  }
+});
+
 //Render when body loaded
 $(function(){
   if(document.getElementById("application")){
     ReactDOM.render(<ViewShed/>, document.getElementById("application"));
   }
-  else if(document.getElementById("viewer")){
-    ReactDOM.render(<ViewShed/>, document.getElementById("viewer"));
+  else if(document.getElementById("ApiViewer")){
+    ReactDOM.render(<ApiViewer/>, document.getElementById("ApiViewer"));
   }
 });
 //export some things to window

@@ -53,7 +53,9 @@ class ElevationHandler(ApiHandler):
         value = yield sampler.sample_pixel(pixel)
         lnglat = CoordSystem.pixel_to_lnglat(pixel)
         self.write_api_response(format, Feature(geometry=Point(lnglat), properties={
-            "elevation":float(value)
+            "elevation":float(value),
+            "uiMapCenter":lnglat,
+            "uiPopupContent": "{} meters".format(float(value))
         }))
 
 class ShedHandler(ApiHandler):
