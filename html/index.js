@@ -155,7 +155,7 @@ var ApiViewer = React.createClass({
     }
     window.L.geoJson(window.geoJsonData,{
       onEachFeature:onEachFeature,
-      style:{"weight": 15}
+      style:{"weight": 4, "opacity": 0.2}
     }).addTo(this.refs.map.leafletElement);
     if(mapCenter){
       this.refs.map.leafletElement.setView([mapCenter[1],mapCenter[0]], 13, {animate: false});
