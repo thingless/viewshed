@@ -94,8 +94,8 @@ class TileSampler(object):
         Returns:
             array: deduped numpy array
         """
-        uniq = np.unique(data.view(data.dtype.descr * data.shape[1]))
-        return uniq.view(data.dtype).reshape(-1, data.shape[1])
+        _, idxs = np.unique(data.view(data.dtype.descr * data.shape[1]), return_index=True)
+        return data[sorted(idxs),:]
 
     @gen.coroutine
     def _sample_tile_pixels(self, tile_pixel, pixels):
