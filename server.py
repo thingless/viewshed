@@ -72,7 +72,7 @@ class ShedHandler(ApiHandler):
         except Exception:
             raise tornado.web.HTTPError(400)
         radius = CoordSystem.pixel_per_meter((lng, lat))*radius #meters -> pixels
-        print 'Getting elevation at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
+        print 'Getting viewshed at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
         center = CoordSystem.lnglat_to_pixel((lng, lat))
         sampler = TileSampler()
         line_segments = []
