@@ -1,13 +1,10 @@
 import tornado.ioloop
 import tornado.web
-from tornado.httpclient import AsyncHTTPClient
 from tornado import gen
-import math
 import tornado
-import gdal
 from helpers import TileSampler, CoordSystem
 import json
-from geojson import Feature, Point
+from geojson import Feature, Point, MultiLineString
 import geojson
 from algo import generate_line_segments, generate_visible, iter_to_runs
 
@@ -34,7 +31,9 @@ class ApiHandler(tornado.web.RequestHandler):
 
 class ElevationHandler(ApiHandler):
     @gen.coroutine
-    def get(self, lng, lat):
+    def get(self, format):
+        lng = self.get_argument('lng')
+        lat = self.get_argument('lat')
         try:
             lnglat = map(float, (lng, lat))
         except Exception:
@@ -50,13 +49,18 @@ class ElevationHandler(ApiHandler):
 
 class ShedHandler(ApiHandler):
     @gen.coroutine
-    def get(self, lng, lat, altitude, radius):
+    def get(self, format):
         #168036.0, 404958.0
         #(168036.0, 404958.0) (168038.83662185463, 404948.41075725335)
+        lng = self.get_argument('lng')
+        lat = self.get_argument('lat')
+        altitude = self.get_argument('altitude')
+        radius = self.get_argument('radius', 1000)
         try:
             lng, lat, altitude, radius = map(float, (lng, lat, altitude, radius))
         except Exception:
             raise tornado.web.HTTPError(400)
+        radius = CoordSystem.pixel_per_meter((lng, lat))*radius #meters -> pixels
         print 'Getting elevation at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
         center = CoordSystem.lnglat_to_pixel((lng, lat))
         sampler = TileSampler()
@@ -65,13 +69,18 @@ class ShedHandler(ApiHandler):
             print start, stop
             elevations, pixels = yield sampler.sample_line(start, stop)
             line_segments.extend(iter_to_runs(generate_visible(altitude, elevations), pixels))
-        line_segments = [map(tuple, segment) for segment in line_segments]
-        self.write_json(line_segments)
 
+        line_segments = [[CoordSystem.pixel_to_lnglat(coord) for coord in segment] for segment in line_segments]
+        self.write_geojson(Feature(geometry=MultiLineString(line_segments), properties={
+            "calculationAltitude":altitude,
+            "calculationRaduis":float(self.get_argument('radius', 1000)),
+            "calculationLat":lat,
+            "calculationLng":lng
+        }))
 
 application = tornado.web.Application([
-    (r"/elevation/(-?\d+\.?\d*)/(-?\d+\.?\d*)", ElevationHandler),
-    (r"/shed/(-?\d+\.?\d*)/(-?\d+\.?\d*)/(\d+\.?\d*)/(\d+\.?\d*)", ShedHandler),
+    (r"/api/v1/elevation/(\w+)", ElevationHandler),
+    (r"/api/v1/viewshed/(\w+)", ShedHandler),
 ])
 
 if __name__ == "__main__":

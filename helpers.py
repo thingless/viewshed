@@ -37,6 +37,15 @@ class CoordSystem(object):
         lng *= 180.0 / math.pi
         return lng, lat
 
+    @classmethod
+    def meters_per_pixel(cls, lnglat, zoom=ZOOM):
+        '''meters per pixel in epsg3857'''
+        return (math.cos(lnglat[1] * math.pi/180.0) * 2.0 * math.pi * 6378137.0) / (256.0 * math.pow(2, zoom))
+
+    @classmethod
+    def pixel_per_meter(cls, lnglat, zoom=ZOOM):
+        return 1.0/cls.meters_per_pixel(lnglat, zoom)
+
 def load_float32_image(buffer):
     try:
         gdal.FileFromMemBuffer('/vsimem/temp', buffer)

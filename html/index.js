@@ -16,6 +16,18 @@ function geoip(){
   });
 }
 
+function computeViewshed(lat, lng, elevation, radius){
+    var url = '/api/v1/viewshed/geojson?' + $.param({
+      lat:lat,
+      lng:lng,
+      altitude:elevation,
+      radius:radius
+    });
+    return new Promise(function(resolve, reject){
+      $.ajax(url, {error:reject, success:resolve});
+    });
+  }
+
 var ViewShed = React.createClass({
   getInitialState: function(){
     return {
@@ -60,6 +72,14 @@ var ViewShed = React.createClass({
       });
     }.bind(this));
   },
+  onSubmit: function(data, resetForm, invalidateForm){
+    computeViewshed(data.lat, data.lng, data.elevation, data.radius)
+      .then(function(geojson){
+        console.log(geojson);
+      }).catch(function(){
+        console.log(arguments);
+      });
+  },
   //dblclick
   //getLeafletElement
   render: function(){
@@ -73,7 +93,7 @@ var ViewShed = React.createClass({
     }
     return (
       <BS.Grid fluid={true} style={{height:"100%"}}>
-        <Formsy.Form style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
+        <Formsy.Form onValidSubmit={this.onSubmit} style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
           <BS.Row>
             <BS.Col md={6}><
               Forms.GeocodingInput name="place" onSuggestSelect={this.geocodingSelect}></Forms.GeocodingInput>
