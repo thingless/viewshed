@@ -103,4 +103,5 @@ node_modules
 # PROJECT
 #################
 
-html/bundle.* # built JS ad CSS files
+bundle.js # built JS ad CSS files
+bundle.css
