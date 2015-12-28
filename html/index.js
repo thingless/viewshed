@@ -178,8 +178,8 @@ var ApiViewer = React.createClass({
 
 //Render when body loaded
 $(function(){
-  if(document.getElementById("application")){
-    ReactDOM.render(<ViewShed/>, document.getElementById("application"));
+  if(document.getElementById("Viewshed")){
+    ReactDOM.render(<ViewShed/>, document.getElementById("Viewshed"));
   }
   else if(document.getElementById("ApiViewer")){
     ReactDOM.render(<ApiViewer/>, document.getElementById("ApiViewer"));

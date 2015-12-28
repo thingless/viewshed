@@ -94,6 +94,8 @@ class ShedHandler(ApiHandler):
 application = tornado.web.Application([
     (r'/bundle\.js()', tornado.web.StaticFileHandler, {'path': 'html/bundle.js'}),
     (r'/bundle\.css()', tornado.web.StaticFileHandler, {'path': 'html/bundle.css'}),
+    (r"/index\.html", tornado.web.RedirectHandler, {"url": "/viewshed"}),
+    (r'/viewshed()', tornado.web.StaticFileHandler, {'path': 'html/viewshed.html'}),
     (r"/api/v1/elevation/(\w+)", ElevationHandler),
     (r"/api/v1/viewshed/(\w+)", ShedHandler),
 ])
