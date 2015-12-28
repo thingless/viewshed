@@ -11,13 +11,7 @@ from algo import generate_line_segments, generate_visible, iter_to_runs
 PORT = 8888
 ZOOM = 12
 
-#class MainHandler(tornado.web.RequestHandler):
-#    def get(self):
-#        items = ["Item 1", "Item 2", "Item 3"]
-#        self.render("template.html", title="My title", items=items)
-
 class ApiHandler(tornado.web.RequestHandler):
-
     def write_api_response(self, format, obj):
         format = format.lower()
         if format=="geojson":
@@ -25,11 +19,9 @@ class ApiHandler(tornado.web.RequestHandler):
             self.write(geojson.dumps(obj))
         elif format=="html":
             self.render("html/viewer.html", title="Viewshed API", geojson=geojson.dumps(obj))
-
     def write_json(self, obj):
         self.set_header("Content-Type", "application/javascript")
         self.write(json.dumps(obj))
-
     def write_error(self, status_code, exc_info=None, **kwargs):
         errortext = 'Internal error'
         if exc_info:

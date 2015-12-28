@@ -16,17 +16,12 @@ function geoip(){
   });
 }
 
-function computeViewshed(lat, lng, elevation, radius){
-    var url = '/api/v1/viewshed/geojson?' + $.param({
-      lat:lat,
-      lng:lng,
-      altitude:elevation,
-      radius:radius
-    });
-    return new Promise(function(resolve, reject){
-      $.ajax(url, {error:reject, success:resolve});
-    });
-  }
+function parseFloat(str){
+  if(!str){ return ''; }
+  var value = window.parseFloat(str);
+  if(isNaN(value)){ return ''; }
+  return value;
+}
 
 var ViewShed = React.createClass({
   getInitialState: function(){
@@ -35,7 +30,7 @@ var ViewShed = React.createClass({
       lng:-0.09,
       submitDisabled:true,
       radius:1000,
-      elevation: 3
+      elevation: 10
     }
   },
   disableSubmit: function(){
@@ -72,13 +67,14 @@ var ViewShed = React.createClass({
       });
     }.bind(this));
   },
-  onSubmit: function(data, resetForm, invalidateForm){
-    computeViewshed(data.lat, data.lng, data.elevation, data.radius)
-      .then(function(geojson){
-        console.log(geojson);
-      }).catch(function(){
-        console.log(arguments);
-      });
+  onValidSubmit: function(data, resetForm, invalidateForm){
+    var url = '/api/v1/viewshed/html?' + $.param({
+      lat:data.lat,
+      lng:data.lng,
+      altitude:data.elevation,
+      radius:data.radius
+    });
+    window.open(url, '_blank').focus();
   },
   render: function(){
     var latlng = [this.state.lat, this.state.lng];
@@ -91,7 +87,7 @@ var ViewShed = React.createClass({
     }
     return (
       <BS.Grid fluid={true} style={{height:"100%"}}>
-        <Formsy.Form onValidSubmit={this.onSubmit} style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
+        <Formsy.Form onValidSubmit={this.onValidSubmit} style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
           <BS.Row>
             <BS.Col md={6}><
               Forms.GeocodingInput name="place" onSuggestSelect={this.geocodingSelect}></Forms.GeocodingInput>
@@ -132,7 +128,7 @@ var ViewShed = React.createClass({
         <BS.Row style={{height:"100%"}}>
           <BS.Col md={12} style={{height:"100%"}}>
             <Map ref="map" style={{height:"100%"}} onLeafletDblclick={this.mapDoubleClicked}>
-              <TileLayer url='http://{s}.tile.osm.org/{z}/{x}/{y}.png' attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'/>
+              <TileLayer maxZoom={16} url='http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}' attribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'/>
               <Leaflet.Circle radius={this.state.radius} center={latlng}></Leaflet.Circle>
             </Map>
           </BS.Col>
