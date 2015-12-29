@@ -8,6 +8,6 @@ __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
 
 set -x #log cmds
 cd $__dir
-rm bundle.* | true
+rm bundle.* || true
 ../node_modules/browserify/bin/cmd.js -t [ babelify --presets [ react ] ] ./index.js -o ./bundle.js
 ../node_modules/node-sass/bin/node-sass ./index.scss > ./bundle.css
