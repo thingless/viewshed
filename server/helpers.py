@@ -73,7 +73,7 @@ class Tile(object):
 
     @gen.coroutine
     def _retrieve_data(self):
-        self.res = yield AsyncHTTPClient().fetch(self.url) #NOTE: currently will throw an http error if status code is not 200
+        self.res = yield AsyncHTTPClient().fetch(self.url, raise_error=False)
         raise Return(load_float32_image(self.res.body) if self.res.code == 200 else None)
 
 
@@ -105,6 +105,7 @@ class TileSampler(object):
         xs = pixels[:,0]
         ys = pixels[:,1]
         tile_data = yield self.get_tile(tile_pixel).data
+        if tile_data is None: raise Return(None)
         raise Return(tile_data[ys.astype(int), xs.astype(int)]) #numpy is row column
 
     def get_tile(self, pixel):
@@ -135,6 +136,9 @@ class TileSampler(object):
         for tile_pixel in tile_pixels: self.get_tile(tile_pixel)
         #sample tiles
         data = [(yield self._sample_tile_pixels(tile_pixel, pixels)) for tile_pixel in tile_pixels]
+        data = [d for d in data if d is not None]
+        if len(data) == 0:
+            raise Return((None, pixels)) #if no tiles were found return None
         raise Return((np.concatenate(data), pixels))
 
     @gen.coroutine

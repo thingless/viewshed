@@ -71,8 +71,10 @@ class ShedHandler(ApiHandler):
         for start, stop in generate_line_segments(radius, center):
             print start, stop
             elevations, pixels = yield sampler.sample_line(start, stop)
+            if elevations is None: continue #if no data found skip it
             line_segments.extend(iter_to_runs(generate_visible(altitude, elevations), pixels))
-
+        if len(line_segments) == 0:
+            raise tornado.web.HTTPError(404, "No elevation data was found for query")
         line_segments = [[CoordSystem.pixel_to_lnglat(coord) for coord in segment] for segment in line_segments]
         self.write_api_response(format, Feature(geometry=MultiLineString(line_segments), properties={
             "calculationAltitude":altitude,
