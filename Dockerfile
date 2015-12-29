@@ -12,8 +12,8 @@ RUN pip install -r /tmp/requirements.txt
 
 #copy source
 RUN mkdir -p /var/www/viewshed
-COPY server /var/www/viewshed/ #python code
-COPY html /var/www/viewshed/   #html & JS
+COPY server /var/www/viewshed/server #python code
+COPY html /var/www/viewshed/html   #html & JS
 RUN chown -R www-data:www-data /var/www
 
 #config nginx & upstart
