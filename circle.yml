@@ -6,3 +6,4 @@ dependencies:
     - npm install --dev
 test:
   override:
+    - true
