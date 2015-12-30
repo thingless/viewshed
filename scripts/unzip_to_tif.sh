@@ -3,6 +3,12 @@ set -o errexit
 set -o nounset
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+
+if [ "$#" -eq 0 ] ; then
+  echo "Usage: unzip_to_tif.sh zip_file"
+  exit 1
+fi
+
 ZIP_FILE=$(readlink -f $1)
 ZIP_DIR=$(dirname $ZIP_FILE)
 OUT_DIR=${2-$ZIP_DIR}
@@ -18,9 +24,9 @@ unzip -j *.zip
 rm *.zip
 #to tif and correct projection
 #ls *.img *.hgt | parallel 'gdalwarp -co "PREDICTOR=2" -co "TILED=YES" -co "COMPRESS=DEFLATE" -t_srs epsg:3857 -of GTiff {} {.}.tif'
-ls *.img *.hgt | parallel 'gdalwarp -co "PREDICTOR=2" -co "TILED=YES" -co "COMPRESS=DEFLATE" -of GTiff {} {.}.tif'
+ls *.img *.hgt *.tif *.tiff | parallel 'gdalwarp -co "PREDICTOR=2" -co "TILED=YES" -co "COMPRESS=DEFLATE" -of GTiff {} {.}_c.tif'
 #copy output
-mv *.tif $OUT_DIR
+mv *_c.tif $OUT_DIR
 #cleanup
 popd
 rm -r $TEMP_DIR
