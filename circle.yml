@@ -7,7 +7,7 @@ dependencies:
   override:
     - npm install --dev
     - npm run build
-    - docker build -t "freethenation/viewshed:${CIRCLE_BUILD_NUM}"  --no-cache .
+    - docker build -t "freethenation/viewshed:${CIRCLE_BUILD_NUM}" .
 test:
   override:
     - echo skipping tests
