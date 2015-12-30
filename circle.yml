@@ -5,7 +5,7 @@ machine:
     - docker
 dependencies:
   override:
-    - npm install --dev
+    - npm install
     - npm run build
     - docker build -t "freethenation/viewshed:${CIRCLE_BUILD_NUM}" .
 test:
