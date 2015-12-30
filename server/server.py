@@ -2,14 +2,15 @@ import tornado.ioloop
 import tornado.web
 from tornado import gen
 import tornado
+from tornado.options import define, options
 from helpers import TileSampler, CoordSystem
 import json
 from geojson import Feature, Point, MultiLineString
 import geojson
 from algo import generate_line_segments, generate_visible, iter_to_runs
 
-PORT = 8888
-ZOOM = 12
+define("port", default="8888", help="http port to listen on")
+define("zoom", default=12, help="web mercator zoom level of dem data")
 
 class ApiHandler(tornado.web.RequestHandler):
     def write_api_response(self, format, obj):
@@ -95,6 +96,7 @@ application = tornado.web.Application([
 ])
 
 if __name__ == "__main__":
-    application.listen(PORT)
-    print 'listening on port %s' % PORT
+    tornado.options.parse_command_line()
+    application.listen(options.port)
+    print 'listening on port %s' % options.port
     tornado.ioloop.IOLoop.current().start()
