@@ -1,3 +1,0 @@
-#to download files
-wget --limit-rate 1m  -N -r -l1 --no-parent -A ".zip" -R "_ArcGrid.zip" "ftp://rockyftp.cr.usgs.gov/vdelivery/Datasets/Staged/NED/13/ArcGrid/"
-
