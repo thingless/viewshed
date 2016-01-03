@@ -3,7 +3,7 @@ This folder contains the scripts nessary to build the DEM tif tile pyramid.
 Scripts are named step1_*, step2_*, etc according to the order in which they should be ran.
 
 The folling command will install the required deps on ubuntu 14.04. Turn off virtual env... it sucks!
-sudo apt-get install -y libtiff5 gdal-bin python-dev python-gdal
+sudo apt-get install -y libtiff5 gdal-bin python-dev python-gdal parallel zip unzip
 
 
 
