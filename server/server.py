@@ -8,10 +8,29 @@ import json
 from geojson import Feature, Point, MultiLineString
 import geojson
 from algo import generate_line_segments, generate_visible, iter_to_runs
+import plyvel
 
 define("port", default="8888", help="http port to listen on")
 define("zoom", default=12, help="web mercator zoom level of dem data")
 define("tile_template", default="http://localhost:8080/{z}/{x}/{y}.tiff", help="url template where web mercator dem tiles can be fetched")
+define("leveldb_path", default="")
+
+db = None
+class TileHandler(tornado.web.RequestHandler):
+    def get(self, z, x, y):
+        if not db:
+            raise tornado.web.HTTPError(503)
+        try:
+            z = int(z)
+            x = int(x)
+            y = int(y)
+        except Exception:
+            raise tornado.web.HTTPError(400, 'tiles coordinates must be integers')
+        data = db.get(b'/{}/{}/{}.tif'.format(z, x, y))
+        self.set_header("Content-type", "image/tiff")
+        self.write(data)
+        self.finish()
+
 
 class ApiHandler(tornado.web.RequestHandler):
     def write_api_response(self, format, obj):
@@ -94,10 +113,13 @@ application = tornado.web.Application([
     (r'/viewshed()', tornado.web.StaticFileHandler, {'path': '../html/viewshed.html'}),
     (r"/api/v1/elevation/(\w+)", ElevationHandler),
     (r"/api/v1/viewshed/(\w+)", ShedHandler),
+    (r"/api/v1/tiles/(\d+)/(\d+)/(\d+).tif", TileHandler)
 ])
 
 if __name__ == "__main__":
     tornado.options.parse_command_line()
+    if options.leveldb_path:
+        db = plyvel.DB(options.leveldb_path, create_if_missing=False)
     application.listen(options.port)
     print 'listening on port %s' % options.port
     tornado.ioloop.IOLoop.current().start()
