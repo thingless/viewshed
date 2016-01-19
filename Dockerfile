@@ -6,7 +6,7 @@ RUN apt-get update
 RUN apt-get upgrade -y
 
 #install deps
-RUN apt-get install -y libopencv-* libtiff5 gdal-bin python-dev python-pip python-opencv python-numpy python-scipy python-gdal nginx
+RUN apt-get install -y libopencv-* libtiff5 gdal-bin python-dev python-pip python-opencv python-numpy python-scipy python-gdal nginx libleveldb-dev
 COPY requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt
 
