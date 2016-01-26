@@ -154,7 +154,7 @@ var ApiViewer = React.createClass({
       style:{"weight": 4, "opacity": 0.2}
     }).addTo(this.refs.map.leafletElement);
     if(mapCenter){
-      this.refs.map.leafletElement.setView([mapCenter[1],mapCenter[0]], 13, {animate: false});
+      this.refs.map.leafletElement.setView([mapCenter[1],mapCenter[0]], 12, {animate: false});
     }
   },
   render: function(){
@@ -163,7 +163,7 @@ var ApiViewer = React.createClass({
         <BS.Row style={{height:"100%"}}>
           <BS.Col md={12} style={{height:"100%"}}>
             <Map ref="map" style={{height:"100%"}}>
-              <TileLayer maxZoom={16} url='http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}' attribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'/>
+              <TileLayer maxZoom={14} url='http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}' attribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'/>
             </Map>
           </BS.Col>
         </BS.Row>
