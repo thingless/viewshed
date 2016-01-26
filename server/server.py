@@ -62,7 +62,7 @@ class ElevationHandler(ApiHandler):
             lnglat = map(float, (lng, lat))
         except Exception:
             raise tornado.web.HTTPError(400)
-        sampler = TileSampler()
+        sampler = TileSampler(url_template=options.tile_template)
         pixel = CoordSystem.lnglat_to_pixel(lnglat)
         print 'Getting elevation at lng,lat:%s,%s %s,%s:' % (lng, lat, pixel[0], pixel[1])
         value = yield sampler.sample_pixel(pixel)
