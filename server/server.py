@@ -93,15 +93,14 @@ class ShedHandler(ApiHandler):
         sampler = TileSampler(url_template=options.tile_template)
         #add relative altitude offset
         if not abs_altitude:
-            value = yield sampler.sample_pixel(center)
+            offset = yield sampler.sample_pixel(center)
         else:
-            value = 0
+            offset = 0
         line_segments = []
         for start, stop in generate_line_segments(radius, center):
-            print start, stop
             elevations, pixels = yield sampler.sample_line(start, stop)
             if elevations is None: continue #if no data found skip it
-            line_segments.extend(iter_to_runs(generate_visible(altitude+value, elevations), pixels))
+            line_segments.extend(iter_to_runs(generate_visible(altitude+offset, elevations), pixels))
         if len(line_segments) == 0:
             raise tornado.web.HTTPError(404, "No elevation data was found for query")
         line_segments = [[CoordSystem.pixel_to_lnglat(coord) for coord in segment] for segment in line_segments]
