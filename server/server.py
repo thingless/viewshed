@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import tornado.ioloop
 import tornado.web
 from tornado import gen
@@ -12,8 +13,8 @@ import plyvel
 
 define("port", default="8888", help="http port to listen on")
 define("zoom", default=12, help="web mercator zoom level of dem data")
-define("tile_template", default="http://localhost:8080/{z}/{x}/{y}.tiff", help="url template where web mercator dem tiles can be fetched")
-define("leveldb_path", default="")
+define("tile_template", default="http://localhost:8888/api/v1/tiles/{z}/{x}/{y}.tiff", help="url template where web mercator dem tiles can be fetched")
+define("leveldb", default="")
 
 db = None
 class TileHandler(tornado.web.RequestHandler):
@@ -27,6 +28,8 @@ class TileHandler(tornado.web.RequestHandler):
         except Exception:
             raise tornado.web.HTTPError(400, 'tiles coordinates must be integers')
         data = db.get(b'/{}/{}/{}.tif'.format(z, x, y))
+        if not data:
+            raise tornado.web.HTTPError(404, 'tile not found')
         self.set_header("Content-type", "image/tiff")
         self.write(data)
         self.finish()
@@ -118,8 +121,8 @@ application = tornado.web.Application([
 
 if __name__ == "__main__":
     tornado.options.parse_command_line()
-    if options.leveldb_path:
-        db = plyvel.DB(options.leveldb_path, create_if_missing=False)
+    if options.leveldb:
+        db = plyvel.DB(options.leveldb, create_if_missing=False)
     application.listen(options.port)
     print 'listening on port %s' % options.port
     tornado.ioloop.IOLoop.current().start()
