@@ -89,7 +89,7 @@ class ShedHandler(ApiHandler):
         radius = CoordSystem.pixel_per_meter((lng, lat))*radius #meters -> pixels
         print 'Getting viewshed at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
         center = CoordSystem.lnglat_to_pixel((lng, lat))
-        sampler = TileSampler()
+        sampler = TileSampler(url_template=options.tile_template)
         line_segments = []
         for start, stop in generate_line_segments(radius, center):
             print start, stop
