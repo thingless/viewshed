@@ -27,13 +27,12 @@ class TileHandler(tornado.web.RequestHandler):
             y = int(y)
         except Exception:
             raise tornado.web.HTTPError(400, 'tiles coordinates must be integers')
-        data = db.get(b'/{}/{}/{}.tif'.format(z, x, y))
+        data = db.get(b'/{}/{}/{}.tiff'.format(z, x, y))
         if not data:
             raise tornado.web.HTTPError(404, 'tile not found')
         self.set_header("Content-type", "image/tiff")
         self.write(data)
         self.finish()
-
 
 class ApiHandler(tornado.web.RequestHandler):
     def write_api_response(self, format, obj):
@@ -116,7 +115,7 @@ application = tornado.web.Application([
     (r'/viewshed()', tornado.web.StaticFileHandler, {'path': '../html/viewshed.html'}),
     (r"/api/v1/elevation/(\w+)", ElevationHandler),
     (r"/api/v1/viewshed/(\w+)", ShedHandler),
-    (r"/api/v1/tiles/(\d+)/(\d+)/(\d+).tif", TileHandler)
+    (r"/api/v1/tiles/(\d+)/(\d+)/(\d+)\.tiff", TileHandler)
 ])
 
 if __name__ == "__main__":
