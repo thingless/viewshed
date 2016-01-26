@@ -82,6 +82,7 @@ class ShedHandler(ApiHandler):
         lat = self.get_argument('lat')
         altitude = self.get_argument('altitude')
         radius = self.get_argument('radius', 1000)
+        abs_altitude = self.get_argument('abs_altitude', False)
         try:
             lng, lat, altitude, radius = map(float, (lng, lat, altitude, radius))
         except Exception:
@@ -90,12 +91,17 @@ class ShedHandler(ApiHandler):
         print 'Getting viewshed at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
         center = CoordSystem.lnglat_to_pixel((lng, lat))
         sampler = TileSampler(url_template=options.tile_template)
+        #add relative altitude offset
+        if not abs_altitude:
+            value = yield sampler.sample_pixel(center)
+        else:
+            value = 0
         line_segments = []
         for start, stop in generate_line_segments(radius, center):
             print start, stop
             elevations, pixels = yield sampler.sample_line(start, stop)
             if elevations is None: continue #if no data found skip it
-            line_segments.extend(iter_to_runs(generate_visible(altitude, elevations), pixels))
+            line_segments.extend(iter_to_runs(generate_visible(altitude+value, elevations), pixels))
         if len(line_segments) == 0:
             raise tornado.web.HTTPError(404, "No elevation data was found for query")
         line_segments = [[CoordSystem.pixel_to_lnglat(coord) for coord in segment] for segment in line_segments]
