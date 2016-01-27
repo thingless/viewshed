@@ -21,4 +21,3 @@ COPY config/viewshed.runit /etc/service/viewshed/run
 RUN chmod +x /etc/service/viewshed/run
 
 EXPOSE 80
-CMD /sbin/init
