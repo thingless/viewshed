@@ -1,2 +1,2 @@
 #!/bin/bash
-exec python /var/www/viewshed/server/server.py --leveldb=/var/lib/viewshed --port=80 2>&1 | logger -t viewshed
+exec python /usr/local/viewshed/server/server.py --leveldb=/var/lib/viewshed --port=80 2>&1 | logger -t viewshed
