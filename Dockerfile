@@ -4,22 +4,21 @@ MAINTAINER FreeTheNation
 #update & install
 RUN apt-get update \
     && apt-get upgrade -y \
-    && apt-get install -y libopencv-* libtiff5 gdal-bin python-dev python-pip python-opencv python-numpy python-scipy python-gdal nginx libleveldb-dev
+    && apt-get install -y libopencv-* libtiff5 gdal-bin python-dev python-pip python-opencv python-numpy python-scipy python-gdal libleveldb-dev
 
 #install python deps
 COPY requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt
 
 #copy source
-RUN mkdir -p /var/www/viewshed/
-COPY server /var/www/viewshed/server
-COPY html /var/www/viewshed/html
-RUN chown -R www-data:www-data /var/www
+RUN mkdir -p /usr/local/viewshed/
+COPY server  /usr/local/viewshed/server
+COPY html    /usr/local/viewshed/html
 
-#config nginx & runit
-COPY config/upstart-viewshed.conf /etc/init/viewshed.conf
-RUN rm /etc/nginx/sites-enabled/default || true
-COPY config/nginx-viewshed.conf /etc/nginx/sites-enabled/viewshed.conf
+#config runit
+RUN mkdir -p /etc/service/viewshed/
+COPY config/viewshed.runit /etc/service/viewshed/run
+RUN chmod +x /etc/service/viewshed/run
 
 EXPOSE 80
 CMD /sbin/init
