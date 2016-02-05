@@ -36,6 +36,7 @@ curl http://viewshed.icyego.com/api/v1/elevation/{format}?lng={longitude}&lat={l
 
 ##Running Locally & Contributing
 Because of its dependence on GDAL ViewSHED can be a little tricky to get running locally for development. The steps below will work on Ubuntu 14.04 if your not using virtualenv:
+
 1. Run `sudo apt-get install -y libopencv-* libtiff5 gdal-bin python-dev python-pip python-opencv python-numpy python-scipy python-gdal libleveldb-dev`
 2. Run `git clone https://github.com/thingless/viewshed.git`
 3. Run `cd viewshed`
@@ -46,6 +47,7 @@ Because of its dependence on GDAL ViewSHED can be a little tricky to get running
 
 ##Deploying
 First, try the publicly hosted version and ensure it does what you want. The elevation data is approx. 30G and takes a while to download. Assuming you still wish to deploy your own server:
+
 1. [Install docker](https://docs.docker.com/engine/installation/) on the server you'll be running ViewSHED on.
 2. Download the data with wget by running `wget http://somedamurl`
 3. Clone the prebuilt docker container with all requirements preinstalled by running `docker pull blah blah blah`.
