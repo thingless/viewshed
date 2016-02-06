@@ -1,7 +1,7 @@
 ViewSHED
 =========
 
-ViewSHED is an open-source API for computing visible area given a location and elevation. It was built to aid in the construction of mesh networks and for use by amateur radio.
+<a href="http://viewshed.icyego.com/viewshed" target="_blank">ViewSHED</a> is an open-source API for computing visible area given a location and elevation. It was built to aid in the construction of mesh networks and for use by amateur radio. It is publicly hosted at <a href="http://viewshed.icyego.com/viewshed" target="_blank">http://viewshed.icyego.com/viewshed</a>.
 
 ##API
 ### ViewShed
@@ -35,7 +35,7 @@ curl http://viewshed.icyego.com/api/v1/elevation/{format}?lng={longitude}&lat={l
 
 
 ##Running Locally & Contributing
-Because of its dependence on GDAL ViewSHED can be a little tricky to get running locally for development. The steps below will work on Ubuntu 14.04 if your not using virtualenv:
+Because of its dependence on GDAL and OpenCV ViewSHED can be a little tricky to get running locally for development. The steps below will work on Ubuntu 14.04 if your not using virtualenv:
 
 1. Run `sudo apt-get install -y libopencv-* libtiff5 gdal-bin python-dev python-pip python-opencv python-numpy python-scipy python-gdal libleveldb-dev`
 2. Run `git clone https://github.com/thingless/viewshed.git`
@@ -43,7 +43,7 @@ Because of its dependence on GDAL ViewSHED can be a little tricky to get running
 4. Run `sudo pip install -r ./requirements.txt`
 5. Run `./server.py --tile_template 'http://viewshed.icyego.com/api/v1/tiles/{z}/{x}/{y}.tiff'`
 
-**NOTE: ** the setup instructions above are only suitable for development as there are rate limits enforced.. If you want to deploy your own ViewSHED sever consult the deployment section.
+__NOTE __: the setup instructions above are only suitable for development as there are rate limits enforced. If you want to deploy your own ViewSHED sever consult the deployment section.
 
 ##Deploying
 First, try the publicly hosted version and ensure it does what you want. The elevation data is approx. 30G and takes a while to download. Assuming you still wish to deploy your own server:
