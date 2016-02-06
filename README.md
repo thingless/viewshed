@@ -1,7 +1,11 @@
 ViewSHED
 =========
 
-<a href="http://viewshed.icyego.com/viewshed" target="_blank">ViewSHED</a> is an open-source API for computing visible area given a location and elevation. It was built to aid in the construction of mesh networks and for use by amateur radio. It is publicly hosted at <a href="http://viewshed.icyego.com/viewshed" target="_blank">http://viewshed.icyego.com/viewshed</a>.
+ViewSHED is an open-source API for computing the visible area given a location and elevation. It was built to aid in the construction of mesh networks and for use by amateur radio. The API currently supports [GeoJSON](http://geojson.org/) and an [HTML interface](http://viewshed.icyego.com/viewshed).
+
+Calculating viewshed is not particularly hard but wrangling together the data and learning an appropriate GIS tool can be challenging. ViewSHED has an [easy to use web interface](http://viewshed.icyego.com/viewshed) and uses accurate (90 meter) global elevation data making calculating viewshed easy.
+
+##[DEMO](http://viewshed.icyego.com/viewshed)
 
 ##API
 ### ViewShed
