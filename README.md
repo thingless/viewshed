@@ -54,9 +54,8 @@ First, try the publicly hosted version and ensure it does what you want. The ele
 
 1. [Install docker](https://docs.docker.com/engine/installation/) on the server you'll be running ViewSHED on.
 2. Download the data with wget by running `wget http://somedamurl`
-3. Clone the prebuilt docker container with all requirements preinstalled by running `docker pull blah blah blah`.
-4. Start the container by running `docker start {data_folder} blah blah blah`
- where the `data_folder` is the path where you extracted the data tar ball you downloaded in step 2.
+3. Clone the prebuilt docker container with all requirements preinstalled by running `docker pull freethenation/viewshed:1.0`.
+4. Start the container by running `docker run -it -v {data_folder}:/var/lib/viewshed -p 127.0.0.1:8080:80 freethenation/viewshed:1.0` where the `data_folder` is the path where you extracted the data tar ball you downloaded in step 2.
 
 ##Data Source & Quality
 The calculations are currently based on [SRTM Digital Elevation Database v4.1](http://www.cgiar-csi.org/data/srtm-90m-digital-elevation-database-v4-1). Calculations are accurate worldwide to approx. 90m. 
