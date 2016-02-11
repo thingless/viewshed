@@ -29,7 +29,7 @@ var ViewShed = React.createClass({
       lat:51.505,
       lng:-0.09,
       submitDisabled:true,
-      radius:1000,
+      radius:10000,
       elevation: 10
     }
   },
@@ -112,11 +112,11 @@ var ViewShed = React.createClass({
             </BS.Col>
             <BS.Col md={4}>
               <Forms.TextInput name="radius" placeholder="Radius" value={this.state.radius} required={true}
-                validations='isInt,isGreaterThanOrEqual:10,isLessThanOrEqual:10000'
+                validations='isInt,isGreaterThanOrEqual:10,isLessThanOrEqual:100000'
                 validationErrors={{
                   isInt:'radius must an whole number',
                   isGreaterThanOrEqual:'radius must be greater than 10',
-                  isLessThanOrEqual:'radius must be less than 10000'
+                  isLessThanOrEqual:'radius must be less than 100000'
                 }}>
               </Forms.TextInput>
             </BS.Col>
