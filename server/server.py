@@ -10,6 +10,7 @@ from geojson import Feature, Point, MultiLineString
 import geojson
 from algo import generate_line_segments, generate_visible, iter_to_runs
 import plyvel
+import math
 
 define("port", default="8888", help="http port to listen on")
 define("zoom", default=12, help="web mercator zoom level of dem data")
@@ -73,6 +74,46 @@ class ElevationHandler(ApiHandler):
             "uiPopupContent": "{} meters".format(float(value))
         }))
 
+class TopOfHillHandler(ApiHandler):
+    @gen.coroutine
+    def get(self, format):
+        lng = self.get_argument('lng')
+        lat = self.get_argument('lat')
+        radius = self.get_argument('radius', 1000)
+        try:
+            lng, lat, radius = map(float, (lng, lat, radius))
+        except Exception:
+            raise tornado.web.HTTPError(400)
+        radius = CoordSystem.pixel_per_meter((lng, lat))*radius #meters -> pixels
+        print 'Getting top of hill at lng: {}, lat: {}, radius:{}'.format(lng, lat, radius)
+        center = CoordSystem.lnglat_to_pixel((lng, lat))
+        sampler = TileSampler(url_template=options.tile_template)
+
+        # Iterate over all points in the square which surrounds the circle
+        max_elv = None
+        max_pos = None
+
+        center = (int(center[0]), int(center[1]))
+        radius = int(radius)
+
+        top_left = (center[0] - radius, center[1] - radius)
+        for x in xrange(top_left[0], top_left[0] + radius * 2):
+            for y in xrange(top_left[1], top_left[1] + radius * 2):
+                # Is it in the circle?
+                if math.sqrt((x - center[0]) ** 2 + (y - center[1]) ** 2) < radius:
+                    # Find the elevation
+                    elevation = yield sampler.sample_pixel((x, y))
+                    if max_elv is None or elevation > max_elv:
+                        max_elv = elevation
+                        max_pos = (x, y)
+
+        lnglat = CoordSystem.pixel_to_lnglat(max_pos)
+        self.write_api_response(format, Feature(geometry=Point(lnglat), properties={
+            "elevation":float(max_elv),
+            "uiMapCenter":lnglat,
+            "uiPopupContent": "{} meters\n({},{})".format(float(max_elv), lnglat[1], lnglat[0])
+        }))
+
 class ShedHandler(ApiHandler):
     @gen.coroutine
     def get(self, format):
@@ -118,6 +159,7 @@ application = tornado.web.Application([
     (r'/bundle\.css()', tornado.web.StaticFileHandler, {'path': '../html/bundle.css'}),
     (r'/viewshed()', tornado.web.StaticFileHandler, {'path': '../html/viewshed.html'}),
     (r"/api/v1/elevation/(\w+)", ElevationHandler),
+    (r"/api/v1/topofhill/(\w+)", TopOfHillHandler),
     (r"/api/v1/viewshed/(\w+)", ShedHandler),
     (r"/api/v1/tiles/(\d+)/(\d+)/(\d+)\.tiff", TileHandler),
     (r".*", tornado.web.RedirectHandler, {"url": "/viewshed"}),

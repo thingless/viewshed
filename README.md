@@ -30,6 +30,13 @@ Returns the elevation of the ground at a given location.
 ```bash
 curl http://viewshed.icyego.com/api/v1/elevation/{format}?lng={longitude}&lat={latitude}
 ```
+
+###Top of Hill
+Returns the elevation and lat/lng of the highest point in a given radius.
+```bash
+curl http://viewshed.icyego.com/api/v1/topofhill/{format}?lng={longitude}&lat={latitude}&radius=100
+```
+
 ####Parameters:
 | Name         | Description                                                                                                                      |
 |--------------|----------------------------------------------------------------------------------------------------------------------------------|
@@ -46,7 +53,8 @@ Because of its dependence on GDAL and OpenCV ViewSHED can be a little tricky to 
 2. Run `git clone https://github.com/thingless/viewshed.git`
 3. Run `cd viewshed`
 4. Run `sudo pip install -r ./requirements.txt`
-5. Run `./server.py --tile_template 'http://viewshed.icyego.com/api/v1/tiles/{z}/{x}/{y}.tiff'`
+5. Run `cd server`
+6. Run `./server.py --tile_template='http://viewshed.icyego.com/api/v1/tiles/{z}/{x}/{y}.tiff'`
 
 __NOTE __: the setup instructions above are only suitable for development as there are rate limits enforced. If you want to deploy your own ViewSHED sever consult the deployment section.
 
