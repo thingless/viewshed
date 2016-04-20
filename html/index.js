@@ -130,6 +130,7 @@ var ViewShed = React.createClass({
             <Map ref="map" style={{height:"100%"}} onLeafletDblclick={this.mapDoubleClicked}>
               <TileLayer maxZoom={16} url='http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}' attribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'/>
               <Leaflet.Circle radius={this.state.radius} center={latlng}></Leaflet.Circle>
+              <Leaflet.Circle radius={10} center={latlng}></Leaflet.Circle>
             </Map>
           </BS.Col>
         </BS.Row>
@@ -163,7 +164,7 @@ var ApiViewer = React.createClass({
         <BS.Row style={{height:"100%"}}>
           <BS.Col md={12} style={{height:"100%"}}>
             <Map ref="map" style={{height:"100%"}}>
-              <TileLayer maxZoom={14} url='http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}' attribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'/>
+              <TileLayer maxZoom={16} url='http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}' attribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'/>
             </Map>
           </BS.Col>
         </BS.Row>
