@@ -3,7 +3,7 @@ from __future__ import division
 import math
 import itertools
 
-SPACING = 15
+SPACING = 5
 
 def iter_to_runs(visibles, pixels):
     cur_val = 6666666
