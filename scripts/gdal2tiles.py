@@ -986,7 +986,7 @@ gdal2tiles temp.vrt""" % self.input )
             self.tileswne = self.mercator.TileLatLonBounds
 
             # Generate table with min max tile coordinates for all zoomlevels
-            self.tminmax = range(0,32)
+            self.tminmax = list(range(0,32))
             for tz in range(0, 32):
                 tminx, tminy = self.mercator.MetersToTile( self.ominx, self.ominy, tz )
                 tmaxx, tmaxy = self.mercator.MetersToTile( self.omaxx, self.omaxy, tz )
