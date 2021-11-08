@@ -5,7 +5,7 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
 
 if [ "$#" -eq 0 ] ; then
-  echo "Usage: unzip_to_tif.sh zip_file"
+  echo "Usage: step1_unzipToTif.sh zip_file"
   echo 'Example (multible zips): ls *.zip | parallel unzip_to_tif.sh'
   exit 1
 fi

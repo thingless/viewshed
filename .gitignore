@@ -105,3 +105,4 @@ node_modules
 
 */bundle.js # built JS ad CSS files
 */bundle.css
+tiles.leveldb
