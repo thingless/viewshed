@@ -51,7 +51,7 @@ First, try the publicly hosted version and ensure it does what you want. The ele
 2. Download the ~30GB of data by running `./download-data.sh`. This will probably take a while.
 3. Run the container with
 ```
-docker run -it --rm -p 8080:8080 -v "./tiles.leveldb:/usr/local/viewshed/data/tiles.leveldb" viewshed:latest
+docker run -it --rm -p 8080:8080 -v "$(pwd)/tiles.leveldb:/usr/local/viewshed/data/tiles.leveldb" viewshed:latest
 ```
 
 ## Data Source & Quality
