@@ -28,6 +28,7 @@ RUN pip3 install -r /tmp/requirements.txt
 
 #copy code
 RUN mkdir -p /usr/local/viewshed/
+COPY download-data.sh /usr/local/viewshed/download-data.sh
 COPY server  /usr/local/viewshed/server
 COPY --from=0 /usr/local/viewshed/html /usr/local/viewshed/html
 
