@@ -61,7 +61,7 @@ __NOTE __: the setup instructions above are only suitable for development as the
 First, try the publicly hosted version and ensure it does what you want. The elevation data is approx. 30G and takes a while to download. Assuming you still wish to deploy your own server:
 
 1. [Install docker](https://docs.docker.com/engine/installation/) on the server you'll be running ViewSHED on.
-2. Download the data with wget by running `wget http://somedamurl`
+2. Download the ~30GB of data by running `wget https://b2-free-egress-worker.mod64.workers.dev/cf-public/b03108db-65f2-4d7c-b884-bb908d111400/tiles.leveldb.tar.gz`
 3. Clone the prebuilt docker container with all requirements preinstalled by running `docker pull freethenation/viewshed:1.0.0`.
 4. Start the container by running `docker run -it -v {data_folder}:/var/lib/viewshed -p 127.0.0.1:8080:80 freethenation/viewshed:1.0.0` where the `data_folder` is the path where you extracted the data tar ball you downloaded in step 2.
 
