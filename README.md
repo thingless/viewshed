@@ -1,4 +1,3 @@
-[![Circle CI](https://circleci.com/gh/thingless/viewshed.svg?style=svg)](https://circleci.com/gh/thingless/viewshed)
 ViewSHED
 =========
 

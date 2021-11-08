@@ -1,3 +1,0 @@
-#!/bin/bash
-cd /usr/local/viewshed/server/
-exec ./server.py --tile_template="http://localhost/api/v1/tiles/{z}/{x}/{y}.tiff" --leveldb=/var/lib/viewshed --port=80 2>&1 | logger -t viewshed
