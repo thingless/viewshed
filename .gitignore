@@ -103,6 +103,6 @@ node_modules
 # PROJECT
 #################
 
-*/bundle.js # built JS ad CSS files
+*/bundle.js
 */bundle.css
 tiles.leveldb
