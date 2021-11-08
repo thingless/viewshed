@@ -28,7 +28,7 @@ class TileHandler(tornado.web.RequestHandler):
             y = int(y)
         except Exception:
             raise tornado.web.HTTPError(400, 'tiles coordinates must be integers')
-        data = db.get(b'/{}/{}/{}.tiff'.format(z, x, y))
+        data = db.get(str.encode('/{}/{}/{}.tiff'.format(z, x, y)))
         if not data:
             raise tornado.web.HTTPError(404, 'tile not found')
         self.set_header("Content-type", "image/tiff")
@@ -65,7 +65,7 @@ class ElevationHandler(ApiHandler):
             raise tornado.web.HTTPError(400)
         sampler = TileSampler(url_template=options.tile_template)
         pixel = CoordSystem.lnglat_to_pixel(lnglat)
-        print 'Getting elevation at lng,lat:%s,%s %s,%s:' % (lng, lat, pixel[0], pixel[1])
+        print('Getting elevation at lng,lat:%s,%s %s,%s:' % (lng, lat, pixel[0], pixel[1]))
         value = yield sampler.sample_pixel(pixel)
         lnglat = CoordSystem.pixel_to_lnglat(pixel)
         self.write_api_response(format, Feature(geometry=Point(lnglat), properties={
@@ -85,7 +85,7 @@ class TopOfHillHandler(ApiHandler):
         except Exception:
             raise tornado.web.HTTPError(400)
         radius = CoordSystem.pixel_per_meter((lng, lat))*radius #meters -> pixels
-        print 'Getting top of hill at lng: {}, lat: {}, radius:{}'.format(lng, lat, radius)
+        print('Getting top of hill at lng: {}, lat: {}, radius:{}'.format(lng, lat, radius))
         center = CoordSystem.lnglat_to_pixel((lng, lat))
         sampler = TileSampler(url_template=options.tile_template)
 
@@ -129,7 +129,7 @@ class ShedHandler(ApiHandler):
         except Exception:
             raise tornado.web.HTTPError(400)
         radius = CoordSystem.pixel_per_meter((lng, lat))*radius #meters -> pixels
-        print 'Getting viewshed at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius)
+        print('Getting viewshed at lng: {}, lat: {}, altitude: {}, radius:{}'.format(lng, lat, altitude, radius))
         center = CoordSystem.lnglat_to_pixel((lng, lat))
         sampler = TileSampler(url_template=options.tile_template)
         #add relative altitude offset
@@ -170,5 +170,5 @@ if __name__ == "__main__":
     if options.leveldb:
         db = plyvel.DB(options.leveldb, create_if_missing=False)
     application.listen(options.port)
-    print 'listening on port %s' % options.port
+    print('listening on port %s' % options.port)
     tornado.ioloop.IOLoop.current().start()

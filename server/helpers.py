@@ -54,7 +54,7 @@ def load_float32_image(buffer):
         ds = None #cleanup
         gdal.Unlink('/vsimem/temp') #cleanup
         return channel
-    except Exception, e:
+    except Exception as e:
         ds = None #cleanup
         gdal.Unlink('/vsimem/temp') #cleanup
         raise e
@@ -135,7 +135,10 @@ class TileSampler(object):
         #preload tiles
         for tile_pixel in tile_pixels: self.get_tile(tile_pixel)
         #sample tiles
-        data = [(yield self._sample_tile_pixels(tile_pixel, pixels)) for tile_pixel in tile_pixels]
+        data = []
+        for tile_pixel in tile_pixels:
+            d = yield self._sample_tile_pixels(tile_pixel, pixels)
+            data.append(d)
         data = [d for d in data if d is not None]
         if len(data) == 0:
             raise Return((None, pixels)) #if no tiles were found return None
@@ -152,8 +155,8 @@ class TileSampler(object):
         Returns:
             array: numpy array of values
         """
-        pixel1 = map(int, pixel1)
-        pixel2 = map(int, pixel2)
+        pixel1 = list(map(int, pixel1))
+        pixel2 = list(map(int, pixel2))
         xs, ys = line(pixel1[0], pixel1[1], pixel2[0], pixel2[1])
         pixels = np.dstack((xs, ys))[0]
         raise Return((yield self.sample_pixels(pixels)))

@@ -2,7 +2,6 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Formsy = require('formsy-react');
 var _ = require('lodash');
-var Geosuggest = require('react-geosuggest');
 
 Formsy.addValidationRule('isGreaterThanOrEqual', function (values, value, number) {
   if(!value && value!==0){ return true; }
@@ -12,34 +11,6 @@ Formsy.addValidationRule('isLessThanOrEqual', function (values, value, number) {
   if(!value && value!==0){ return true; }
   return parseFloat(value) <= parseFloat(number);
 });
-
-var GeocodingInput = React.createClass(_.extend({}, Formsy.Mixin, {
-  changeValue: function (suggest) {
-    this.props.onSuggestSelect && this.props.onSuggestSelect(suggest);
-    this.setValue(suggest);
-  },
-  getDefaultProps: function(){
-    return {
-      validationError:'There was an issue with place you entered'
-    }
-  },
-  resetValue:  function(){
-    this.refs.geosuggest && this.refs.geosuggest.clear(); //reset actual UI
-    Formsy.Mixin.resetValue.call(this);
-  },
-  componentDidMount: function(){
-    $(ReactDOM.findDOMNode(this.refs.geosuggest)).find('input').addClass('form-control'); //hacky but meh
-  },
-  render: function(){
-    return (
-      <div className={this.showRequired() || this.showError() ? 'form-group has-error' : 'form-group'}>
-        <Geosuggest placeholder='search places' ref='geosuggest' onSuggestSelect={this.changeValue}/>
-        <span className="help-block">{this.getErrorMessage()}</span>
-      </div>
-    );
-  }
-
-}));
 
 var LatInput = React.createClass(_.extend({}, Formsy.Mixin, {
   changeValue: function (event) {
@@ -115,7 +86,6 @@ var LngInput = React.createClass(_.extend({}, Formsy.Mixin, {
 module.exports = {
   LatInput:LatInput,
   LngInput:LngInput,
-  GeocodingInput:GeocodingInput,
   TextInput:TextInput
 };
 

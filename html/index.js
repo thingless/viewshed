@@ -90,12 +90,9 @@ var ViewShed = React.createClass({
         <Formsy.Form onValidSubmit={this.onValidSubmit} style={{padding:"2px"}} ref="form" onValid={this.onValid} onInvalid={this.disableSubmit}>
           <BS.Row>
             <BS.Col md={6}>
-              <Forms.GeocodingInput name="place" onSuggestSelect={this.geocodingSelect}></Forms.GeocodingInput>
-            </BS.Col>
-            <BS.Col md={3}>
               <Forms.LatInput name="lat" required={true} value={this.state.lat}></Forms.LatInput>
             </BS.Col>
-            <BS.Col md={3}>
+            <BS.Col md={6}>
               <Forms.LngInput name="lng" required={true} value={this.state.lng}></Forms.LngInput>
             </BS.Col> 
           </BS.Row>
